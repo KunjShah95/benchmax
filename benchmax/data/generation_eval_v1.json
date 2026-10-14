@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "items": [
+    {"id": "math_001", "category": "math", "prompt": "What is 2 + 2? Answer with only the number.", "expected": "4"},
+    {"id": "math_002", "category": "math", "prompt": "What is 7 * 6? Answer with only the number.", "expected": "42"},
+    {"id": "math_003", "category": "math", "prompt": "What is 100 / 4? Answer with only the number.", "expected": "25"},
+    {"id": "fact_001", "category": "fact", "prompt": "What is the capital of France? Answer with only the city name.", "expected": "paris"},
+    {"id": "fact_002", "category": "fact", "prompt": "What is the chemical symbol for water? Answer with only the symbol.", "expected": "h2o"},
+    {"id": "logic_001", "category": "logic", "prompt": "If all roses are flowers and all flowers are plants, are all roses plants? Answer yes or no.", "expected": "yes"}
+  ]
+}
