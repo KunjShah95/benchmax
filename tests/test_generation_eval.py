@@ -1,27 +1,38 @@
+import socket
 import threading
 import time
 
 import pytest
+import requests
 
 from benchmax.core import OpenAICompatClient
 from benchmax import generation_eval as g
 from benchmax import mock_cloud
 
 
+def _free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
 @pytest.fixture(scope="module")
 def mock_url():
-    port = 8991
+    port = _free_port()
     thread = threading.Thread(target=mock_cloud.serve, args=(port,), daemon=True)
     thread.start()
-    time.sleep(1.0)
     url = f"http://127.0.0.1:{port}/v1"
-    for _ in range(20):
+    deadline = time.time() + 10.0
+    healthy = False
+    while time.time() < deadline:
         try:
-            import requests
             if requests.get(f"http://127.0.0.1:{port}/health", timeout=1).status_code == 200:
+                healthy = True
                 break
         except Exception:
             time.sleep(0.5)
+    if not healthy:
+        raise RuntimeError(f"mock server failed to start on port {port}")
     yield url
 
 
@@ -58,7 +69,7 @@ def test_generation_eval_runs_against_mock(mock_url):
 def test_generation_eval_failed_requests_are_recorded(monkeypatch):
     # Force client to raise on complete_scored
     class BrokenClient:
-        def complete_scored(self, *a, **k):
+        def complete_once(self, *a, **k):
             raise RuntimeError("boom")
 
     result = g.evaluate_generation(BrokenClient())
@@ -66,3 +77,31 @@ def test_generation_eval_failed_requests_are_recorded(monkeypatch):
     assert result["n_failed"] == result["n_items"]
     assert result["status"] == "error"
     assert all(r["error"] for r in result["per_item"])
+
+
+def test_empty_answer_counted_as_failed(monkeypatch):
+    class EmptyClient:
+        def complete_once(self, *a, **k):
+            return {"raw": {"choices": [{"text": " "}], "usage": None}, "wall_s": 0.1}
+
+    result = g.evaluate_generation(EmptyClient(), dataset=[
+        {"id": "e1", "prompt": "p", "expected": "x"}])
+    assert result["n_ok"] == 0
+    assert result["n_failed"] == 1
+    assert result["per_item"][0]["error"] == "empty response"
+    assert result["token_usage_available"] is False
+    assert result["usage_coverage"] == 0.0
+    assert result["total_prompt_tokens"] is None
+
+
+def test_custom_dataset_version_preserved():
+    class OKClient:
+        def complete_once(self, *a, **k):
+            return {"raw": {"choices": [{"text": "4"}], "usage": {"prompt_tokens": 2, "completion_tokens": 1}}, "wall_s": 0.1}
+
+    dataset = {"version": "2.5.0", "items": [{"id": "m", "prompt": "p", "expected": "4"}]}
+    result = g.evaluate_generation(OKClient(), dataset=dataset)
+    assert result["dataset_version"] == "2.5.0"
+    assert result["n_with_usage"] == 1
+    assert result["total_prompt_tokens"] == 2
+    assert result["token_usage_available"] is True

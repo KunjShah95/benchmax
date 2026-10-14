@@ -172,6 +172,7 @@ def _as_dataset(dataset: Any) -> list[dict[str, Any]]:
 def evaluate_generation(
     client: OpenAICompatClient,
     dataset: Any = None,
+    dataset_version: str | None = None,
     max_tokens: int = 64,
     temperature: float = 0.0,
     seed: int | None = 1234,
@@ -183,9 +184,15 @@ def evaluate_generation(
     Returns a dict with ``status``, ``dataset_version``, ``dataset_hash``,
     per-item results and aggregate accuracy/latency/token counters.
     """
+    ds_version = dataset_version
+    if isinstance(dataset, dict):
+        if ds_version is None:
+            ds_version = dataset.get("version") or dataset.get("dataset_version")
     items = _as_dataset(dataset)
     h = dataset_hash(items)
     n = len(items)
+    if ds_version is None:
+        ds_version = DATASET_VERSION
 
     per_item: list[dict[str, Any]] = []
     errors: list[str] = []
@@ -193,8 +200,9 @@ def evaluate_generation(
     n_failed = 0
     n_exact = 0
     latencies: list[float] = []
-    total_prompt_tokens = 0
-    total_completion_tokens = 0
+    total_prompt_tokens = None
+    total_completion_tokens = None
+    n_with_usage = 0
 
     for i, it in enumerate(items):
         rid = f"{run_id}|{it['id']}"
@@ -214,16 +222,18 @@ def evaluate_generation(
             "error": None,
         }
         try:
-            got = client.complete_scored(
-                prompt=it["prompt"],
-                max_tokens=max_tokens,
-                run_id=rid,
-                workload=workload,
-                temperature=temperature,
-                seed=seed,
-                echo=False,
-                n_logprobs=0,
-            )
+            complete = getattr(client, "complete_once", None)
+            if complete is None:
+                got = client.complete_scored(
+                    prompt=it["prompt"], max_tokens=max_tokens, run_id=rid,
+                    workload=workload, temperature=temperature, seed=seed,
+                    echo=False, n_logprobs=0,
+                )
+            else:
+                got = complete(
+                    prompt=it["prompt"], max_tokens=max_tokens, run_id=rid,
+                    workload=workload, temperature=temperature, seed=seed,
+                )
         except Exception as exc:  # noqa: BLE001 - recorded, not swallowed
             row["error"] = f"{type(exc).__name__}: {exc}"
             errors.append(f"item {it['id']}: {row['error']}")
@@ -244,12 +254,27 @@ def evaluate_generation(
         row["completion_tokens"] = usage.get("completion_tokens")
         row["http_status"] = 200
 
-        if row["prompt_tokens"] is not None:
-            total_prompt_tokens += int(row["prompt_tokens"])
-        if row["completion_tokens"] is not None:
-            total_completion_tokens += int(row["completion_tokens"])
+        has_usage = row["prompt_tokens"] is not None or row["completion_tokens"] is not None
+        if has_usage:
+            n_with_usage += 1
+            if total_prompt_tokens is None:
+                total_prompt_tokens = 0
+            if total_completion_tokens is None:
+                total_completion_tokens = 0
+            if row["prompt_tokens"] is not None:
+                total_prompt_tokens += int(row["prompt_tokens"])
+            if row["completion_tokens"] is not None:
+                total_completion_tokens += int(row["completion_tokens"])
         if row["latency_s"] is not None:
             latencies.append(float(row["latency_s"]))
+
+        if not normalise_answer(text):
+            row["passed"] = False
+            row["error"] = "empty response"
+            errors.append(f"item {it['id']}: empty response")
+            n_failed += 1
+            per_item.append(row)
+            continue
 
         if is_exact_match(text, it["expected"]):
             n_exact += 1
@@ -266,10 +291,12 @@ def evaluate_generation(
     else:
         status = "ok"
 
+    usage_coverage = (n_with_usage / n) if n else None
     return {
         "kind": "generation_quality_run",
         "status": status,
-        "dataset_version": DATASET_VERSION,
+        "dataset_version": ds_version,
+        "dataset_version_resolved": ds_version,
         "dataset_hash": h,
         "dataset_items": n,
         "n_items": n,
@@ -282,6 +309,12 @@ def evaluate_generation(
         "latency_s_max": (max(latencies) if latencies else None),
         "total_prompt_tokens": total_prompt_tokens,
         "total_completion_tokens": total_completion_tokens,
+        "token_usage_total_prompt": total_prompt_tokens,
+        "token_usage_total_completion": total_completion_tokens,
+        "token_usage_available": n_with_usage > 0,
+        "n_with_usage": n_with_usage,
+        "usage_coverage": usage_coverage,
+        "usage_available": n_with_usage > 0,
         "max_tokens": max_tokens,
         "temperature": temperature,
         "seed": seed,

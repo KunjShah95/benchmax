@@ -114,6 +114,27 @@ def cmd_quality(args) -> None:
                                        "models": args.models})
 
 
+def cmd_gen_quality(args) -> None:
+    from .core import OpenAICompatClient
+    from . import generation_eval as GE
+
+    client = OpenAICompatClient(args.base_url, model=args.model)
+    result = GE.evaluate_generation(
+        client,
+        dataset=args.dataset,
+        dataset_version=args.dataset_version,
+        max_tokens=args.max_tokens,
+        temperature=args.temperature,
+        seed=args.seed,
+        run_id=args.run_id,
+    )
+    text = json.dumps(result, indent=2, default=str)
+    print(text)
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as f:
+            f.write(text + "\n")
+
+
 def cmd_report(args) -> None:
     from .analysis import build_all
     from .report import write_all
@@ -260,6 +281,20 @@ def main() -> None:
     p.add_argument("--device", default="cuda", choices=["cuda", "cpu"])
     p.add_argument("--ppl-chunks", type=int, default=12)
     p.set_defaults(func=cmd_quality)
+
+    p = sub.add_parser("gen-quality")
+    p.add_argument("--base-url", required=True,
+                   help="OpenAI-compatible base URL, e.g. http://127.0.0.1:8000/v1")
+    p.add_argument("--model", required=True)
+    p.add_argument("--dataset", default=None,
+                   help="optional JSON dataset path; defaults to bundled dataset")
+    p.add_argument("--dataset-version", default=None)
+    p.add_argument("--max-tokens", type=int, default=64)
+    p.add_argument("--temperature", type=float, default=0.0)
+    p.add_argument("--seed", type=int, default=1234)
+    p.add_argument("--run-id", default="gen-quality")
+    p.add_argument("--out", default=None, help="optional output JSON path")
+    p.set_defaults(func=cmd_gen_quality)
 
     p = sub.add_parser("cloud")
     p.add_argument("action", choices=["status", "run"])
