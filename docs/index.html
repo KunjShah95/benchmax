@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>benchmax — vLLM vs llama.cpp under controlled workloads</title>
+<meta name="description" content="288 measured runs across 24 backend × model × quantization configurations. Reproducible benchmark of vLLM and llama.cpp on an 8 GiB consumer GPU.">
+<style>
+  :root { --bg:#0b0d12; --fg:#e8eaee; --muted:#9aa3b2; --accent:#6ea8fe; --card:#151821; --border:#232733; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--fg); line-height:1.6; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .wrap { max-width:1080px; margin:0 auto; padding:24px; }
+  header { padding:64px 0 32px; }
+  h1 { font-size:40px; margin:0 0 12px; }
+  h2 { font-size:26px; margin:40px 0 12px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+  h3 { font-size:19px; margin:24px 0 8px; }
+  p { margin:0 0 12px; }
+  .lead { color:var(--muted); font-size:18px; max-width:780px; }
+  .badges { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+  .badge { background:var(--card); border:1px solid var(--border); padding:6px 12px; border-radius:6px; font-size:13px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .card h3 { margin-top:0; }
+  .kpi { font-size:28px; font-weight:700; color:var(--accent); }
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+  th,td { padding:8px 10px; border:1px solid var(--border); }
+  th { background:var(--card); text-align:left; }
+  figure { margin:16px 0; }
+  figure img { max-width:100%; border-radius:8px; border:1px solid var(--border); }
+  figure figcaption { color:var(--muted); font-size:13px; margin-top:6px; }
+  .cta { display:inline-block; background:var(--accent); color:#0b0d12; padding:10px 18px; border-radius:8px; font-weight:600; margin-right:10px; }
+  .cta.secondary { background:var(--card); color:var(--fg); border:1px solid var(--border); }
+  footer { color:var(--muted); font-size:13px; padding:40px 0; border-top:1px solid var(--border); margin-top:40px; }
+  code { background:var(--card); padding:2px 6px; border-radius:4px; font-size:13px; }
+  pre { background:var(--card); padding:12px; border-radius:8px; overflow:auto; border:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>benchmax</h1>
+  <p class="lead">A controlled, reproducible benchmark of <strong>vLLM</strong> and <strong>llama.cpp</strong> on identical prompts across 24 backend × model × quantization configurations — measuring time-to-first-token, inter-token latency, throughput, goodput, memory, and quality. Built for an 8 GiB consumer GPU.</p>
+  <div class="badges">
+    <span class="badge">288 measured runs</span>
+    <span class="badge">n = 3 replicates</span>
+    <span class="badge">RTX 4060 Laptop (8 GiB)</span>
+    <span class="badge">Open source</span>
+  </div>
+  <div style="margin-top:16px;">
+    <a class="cta" href="../reports/pdf/REPORT.pdf">Read the report (PDF)</a>
+    <a class="cta secondary" href="../reports/pdf/DATA_APPENDIX.pdf">Data appendix</a>
+    <a class="cta secondary" href="https://github.com/">Source on GitHub</a>
+  </div>
+</header>
+
+<h2>The ranking inverts with load</h2>
+<div class="grid">
+  <div class="card">
+    <h3>Single request (batch size 1)</h3>
+    <p class="kpi">llama.cpp wins</p>
+    <p>4.1–20.3 ms/token vs 5.2–86.7 ms. Up to 8× faster per token. Lower memory, 4–25× faster startup.</p>
+  </div>
+  <div class="card">
+    <h3>32 concurrent requests</h3>
+    <p class="kpi">vLLM wins, decisively</p>
+    <p>TTFT 65–135 ms vs 2,970–8,490 ms (30–60×). Throughput 1,138–3,233 vs 189–547 tok/s. Goodput 20–50× better.</p>
+  </div>
+  <div class="card">
+    <h3>Memory</h3>
+    <p class="kpi">llama.cpp uses less</p>
+    <p>2.8–7.6 GB scaling with model size. vLLM sits at 6.9–7.9 GB for every model, including 0.6B — ~80% preallocation.</p>
+  </div>
+  <div class="card">
+    <h3>Quality at 4-bit</h3>
+    <p class="kpi">~2–3% perplexity</p>
+    <p>8-bit is free. 4-bit costs a small, consistent amount. Penalty tracks bit width, not the backend.</p>
+  </div>
+</div>
+
+<h2>Figures</h2>
+<figure>
+  <img src="../reports/figures/frontier_w4_concurrent_32.png" alt="TTFT vs throughput frontier at 32 concurrent requests">
+  <figcaption>w4_concurrent_32 — lower-right is better. The two backends occupy non-overlapping regions.</figcaption>
+</figure>
+<figure>
+  <img src="../reports/figures/goodput_by_backend.png" alt="Goodput by backend and workload">
+  <figcaption>Goodput across workloads. llama.cpp leads at batch size 1; vLLM takes over between 2 and 8 concurrent and never loses it.</figcaption>
+</figure>
+<figure>
+  <img src="../reports/figures/memory_by_config.png" alt="Peak VRAM by model and backend">
+  <figcaption>Peak VRAM. vLLM flat at ~7.2 GB for a 0.6B and 4B alike; llama.cpp scales 3.6 → 7.4 GB.</figcaption>
+</figure>
+<figure>
+  <img src="../reports/figures/quality_perplexity.png" alt="Perplexity under quantization">
+  <figcaption>Perplexity under quantization, relative to each model's own unquantized run.</figcaption>
+</figure>
+
+<h2>Choosing between them</h2>
+<table>
+  <thead><tr><th>Priority</th><th>Prefer</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Interactive latency, one user, laptop/small GPU</td><td><strong>llama.cpp</strong></td><td>4–20 ms/token vs 5–87 ms; 4–25× faster startup; VRAM scales with model size</td></tr>
+    <tr><td>Many concurrent users on one GPU</td><td><strong>vLLM</strong></td><td>30–60× lower TTFT and 4–11× throughput; goodput 20–50× better</td></tr>
+    <tr><td>Fitting several models on one card</td><td><strong>llama.cpp</strong></td><td>on-demand allocation vs ~80% preallocation</td></tr>
+    <tr><td>4-bit deployment</td><td>either</td><td>~2–3% perplexity in both; AWQ only exists for some models on vLLM</td></tr>
+    <tr><td>8-bit</td><td>either</td><td>free in both — within ~2% of unquantized</td></tr>
+    <tr><td>GGUF ecosystem</td><td><strong>llama.cpp</strong></td><td>vLLM cannot read GGUF at all</td></tr>
+  </tbody>
+</table>
+
+<h2>The biggest caveat</h2>
+<p>vLLM 0.31 has <strong>no GGUF support at all</strong>, and llama.cpp has no AWQ/FP8. Their quantization surfaces are disjoint, so there is no configuration in which both serve the same weights. Every comparison above confounds backend, quantizer, and artifact — directional, not controlled.</p>
+
+<h2>Reproducing</h2>
+<pre>bash scripts/run_all.sh          # selftest → preflight → download → run → report
+python -m benchmax.cli selftest  # validate the measurement core against a mock
+python -m benchmax.cli run --resume
+python -m benchmax.cli report    # tables + figures</pre>
+
+<h2>Downloads</h2>
+<ul>
+  <li><a href="../reports/pdf/REPORT.pdf">REPORT.pdf</a> — full report, 11 pages, figures embedded</li>
+  <li><a href="../reports/pdf/DATA_APPENDIX.pdf">DATA_APPENDIX.pdf</a> — every table, 22 pages</li>
+  <li><a href="../reports/pdf/README.pdf">README.pdf</a> — methodology, 4 pages</li>
+  <li><a href="../reports/REPORT.md">REPORT.md</a> — markdown source</li>
+</ul>
+
+<footer>
+  benchmax — controlled benchmark of vLLM vs llama.cpp. Numbers re-derived from results/raw/runs.jsonl.
+</footer>
+</div>
+</body>
+</html>

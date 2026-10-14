@@ -1,0 +1,283 @@
+{
+  "cells": [
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-0.6b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M",
+      "repo": "unsloth/Qwen3-0.6B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-0.6b",
+      "quant": "8bit",
+      "scheme": "Q8_0",
+      "repo": "unsloth/Qwen3-0.6B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-0.6b",
+      "quant": "16bit",
+      "scheme": "F16",
+      "repo": "unsloth/Qwen3-0.6B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-1.7b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M",
+      "repo": "unsloth/Qwen3-1.7B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-1.7b",
+      "quant": "8bit",
+      "scheme": "Q8_0",
+      "repo": "unsloth/Qwen3-1.7B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-1.7b",
+      "quant": "16bit",
+      "scheme": "F16",
+      "repo": "unsloth/Qwen3-1.7B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-4b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M",
+      "repo": "unsloth/Qwen3-4B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "qwen3-4b",
+      "quant": "8bit",
+      "scheme": "Q8_0",
+      "repo": "unsloth/Qwen3-4B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "llama32-1b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M",
+      "repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "llama32-1b",
+      "quant": "8bit",
+      "scheme": "Q8_0",
+      "repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "llama32-1b",
+      "quant": "16bit",
+      "scheme": "F16",
+      "repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "llama32-3b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M",
+      "repo": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "llamacpp",
+      "model": "llama32-3b",
+      "quant": "8bit",
+      "scheme": "Q8_0",
+      "repo": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-0.6b",
+      "quant": "int8",
+      "scheme": "GPTQ-INT8 (W8A16)",
+      "repo": "Qwen/Qwen3-0.6B-GPTQ-Int8",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-0.6b",
+      "quant": "8bit",
+      "scheme": "FP8 (W8A8, e4m3)",
+      "repo": "Qwen/Qwen3-0.6B-FP8",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-0.6b",
+      "quant": "16bit",
+      "scheme": "BF16 (unquantized)",
+      "repo": "Qwen/Qwen3-0.6B",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-1.7b",
+      "quant": "int8",
+      "scheme": "GPTQ-INT8 (W8A16)",
+      "repo": "Qwen/Qwen3-1.7B-GPTQ-Int8",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-1.7b",
+      "quant": "8bit",
+      "scheme": "FP8 (W8A8, e4m3)",
+      "repo": "Qwen/Qwen3-1.7B-FP8",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-1.7b",
+      "quant": "16bit",
+      "scheme": "BF16 (unquantized)",
+      "repo": "Qwen/Qwen3-1.7B",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-4b",
+      "quant": "4bit",
+      "scheme": "AWQ-INT4 (W4A16)",
+      "repo": "Qwen/Qwen3-4B-AWQ",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-4b",
+      "quant": "8bit",
+      "scheme": "FP8 (W8A8, e4m3)",
+      "repo": "Qwen/Qwen3-4B-FP8",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "qwen3-4b",
+      "quant": "16bit",
+      "scheme": "BF16 (unquantized)",
+      "repo": "Qwen/Qwen3-4B",
+      "available": false,
+      "note": "weights ~8.4 GiB exceed the 5.0 GiB budget on an 8 GiB card shared with a desktop"
+    },
+    {
+      "backend": "vllm",
+      "model": "llama32-1b",
+      "quant": "8bit",
+      "scheme": "FP8 dynamic (W8A8)",
+      "repo": "RedHatAI/Llama-3.2-1B-Instruct-FP8-dynamic",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "llama32-1b",
+      "quant": "16bit",
+      "scheme": "BF16 (unquantized)",
+      "repo": "unsloth/Llama-3.2-1B-Instruct",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "llama32-3b",
+      "quant": "8bit",
+      "scheme": "FP8 dynamic (W8A8)",
+      "repo": "RedHatAI/Llama-3.2-3B-Instruct-FP8-dynamic",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm",
+      "model": "llama32-3b",
+      "quant": "16bit",
+      "scheme": "BF16 (unquantized)",
+      "repo": "unsloth/Llama-3.2-3B-Instruct",
+      "available": false,
+      "note": "weights ~6.3 GiB exceed the 5.0 GiB budget on an 8 GiB card shared with a desktop"
+    },
+    {
+      "backend": "vllm_gguf",
+      "model": "qwen3-0.6b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M (GGUF via vLLM)",
+      "repo": "unsloth/Qwen3-0.6B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm_gguf",
+      "model": "qwen3-1.7b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M (GGUF via vLLM)",
+      "repo": "unsloth/Qwen3-1.7B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm_gguf",
+      "model": "qwen3-4b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M (GGUF via vLLM)",
+      "repo": "unsloth/Qwen3-4B-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm_gguf",
+      "model": "llama32-1b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M (GGUF via vLLM)",
+      "repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    },
+    {
+      "backend": "vllm_gguf",
+      "model": "llama32-3b",
+      "quant": "4bit",
+      "scheme": "Q4_K_M (GGUF via vLLM)",
+      "repo": "bartowski/Llama-3.2-3B-Instruct-GGUF",
+      "available": true,
+      "note": ""
+    }
+  ]
+}

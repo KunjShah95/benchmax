@@ -1,0 +1,10 @@
+{
+  "timestamp_utc": "2026-10-13T12:40:21Z",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "logical_cores": 20,
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 8188 MiB, 610.62, 8.9",
+  "cpu": "Intel(R) Core(TM) i7-14650HX",
+  "ram_gib": 10.69,
+  "wsl_note": "running inside WSL2; visible RAM is the .wslconfig cap, which is smaller than host RAM"
+}

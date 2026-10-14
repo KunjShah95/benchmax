@@ -1,0 +1,52 @@
+{
+  "matrix": [
+    {
+      "backend": "llamacpp",
+      "model_key": "qwen3-1.7b",
+      "model_label": "Qwen3-1.7B",
+      "family": "Qwen3",
+      "params_b": 1.7,
+      "quant_level": "4bit",
+      "quant_scheme": "Q4_K_M (GGUF)",
+      "source_repo": "unsloth/Qwen3-1.7B-GGUF",
+      "source_file": "Qwen3-1.7B-Q4_K_M.gguf",
+      "local_path": "/home/jksha/benchmax-env/models/unsloth__Qwen3-1.7B-GGUF/Qwen3-1.7B-Q4_K_M.gguf",
+      "status": "ready",
+      "skip_reason": "",
+      "device": "cuda",
+      "extra_args": []
+    },
+    {
+      "backend": "llamacpp",
+      "model_key": "qwen3-1.7b",
+      "model_label": "Qwen3-1.7B",
+      "family": "Qwen3",
+      "params_b": 1.7,
+      "quant_level": "8bit",
+      "quant_scheme": "Q8_0 (GGUF)",
+      "source_repo": "unsloth/Qwen3-1.7B-GGUF",
+      "source_file": "Qwen3-1.7B-Q8_0.gguf",
+      "local_path": "/home/jksha/benchmax-env/models/unsloth__Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+      "status": "ready",
+      "skip_reason": "",
+      "device": "cuda",
+      "extra_args": []
+    },
+    {
+      "backend": "llamacpp",
+      "model_key": "qwen3-1.7b",
+      "model_label": "Qwen3-1.7B",
+      "family": "Qwen3",
+      "params_b": 1.7,
+      "quant_level": "16bit",
+      "quant_scheme": "BF16 (GGUF)",
+      "source_repo": "unsloth/Qwen3-1.7B-GGUF",
+      "source_file": "Qwen3-1.7B-BF16.gguf",
+      "local_path": "/home/jksha/benchmax-env/models/unsloth__Qwen3-1.7B-GGUF/Qwen3-1.7B-BF16.gguf",
+      "status": "ready",
+      "skip_reason": "",
+      "device": "cuda",
+      "extra_args": []
+    }
+  ]
+}

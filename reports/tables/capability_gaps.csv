@@ -1,0 +1,30 @@
+category,backend,model,quant_level,detail
+mc_unavailable,llamacpp,qwen3-0.6b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-0.6b,8bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-0.6b,16bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-4b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-4b,8bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,llama32-1b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,llama32-1b,8bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,llama32-1b,16bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,llama32-3b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,llama32-3b,8bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-4b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-4b,8bit,top-logprobs not served by llama.cpp /v1/completions
+startup_failure,vllm,qwen3-0.6b,int8,
+startup_failure,vllm,qwen3-0.6b,8bit,
+startup_failure,vllm,qwen3-0.6b,16bit,
+startup_failure,vllm,qwen3-1.7b,int8,
+startup_failure,vllm,qwen3-1.7b,8bit,
+startup_failure,vllm,qwen3-1.7b,16bit,
+startup_failure,vllm,qwen3-4b,4bit,
+startup_failure,vllm,qwen3-4b,8bit,
+startup_failure,vllm,llama32-1b,8bit,
+startup_failure,vllm,llama32-1b,16bit,
+startup_failure,vllm,llama32-3b,8bit,
+startup_failure,vllm_gguf,qwen3-4b,4bit,
+startup_failure,vllm_gguf,llama32-1b,4bit,
+startup_failure,vllm_gguf,llama32-3b,4bit,
+mc_unavailable,llamacpp,qwen3-1.7b,4bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-1.7b,8bit,top-logprobs not served by llama.cpp /v1/completions
+mc_unavailable,llamacpp,qwen3-1.7b,16bit,top-logprobs not served by llama.cpp /v1/completions

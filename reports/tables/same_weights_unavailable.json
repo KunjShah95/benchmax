@@ -1,0 +1,11 @@
+{
+  "status": "unavailable",
+  "reason": "vLLM 0.31 does not support GGUF. llama.cpp consumes GGUF (Q4_K_M/Q8_0/BF16); vLLM consumes safetensors with AWQ, FP8, GPTQ or compressed-tensors. The two quantization surfaces are disjoint, so 'same weights, different backend' cannot be measured by construction. Any llama.cpp-vs-vLLM throughput delta therefore confounds backend with quantization scheme and model artifact.",
+  "verified_by": [
+    "no 'gguf' key in vllm QUANTIZATION_METHODS",
+    "ModuleNotFoundError: vllm.model_executor.layers.quantization.gguf",
+    "ImportError: cannot import GGUFConfig from vllm.transformers_utils.config",
+    "serving a local .gguf path -> OSError 'not a valid JSON file'",
+    "serving 'repo/file.gguf' -> OSError malformed repo id"
+  ]
+}
