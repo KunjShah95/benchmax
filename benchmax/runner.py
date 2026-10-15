@@ -150,6 +150,10 @@ class BenchmarkRunner:
         os.makedirs(os.path.join(results_dir, "raw"), exist_ok=True)
         os.makedirs(os.path.join(results_dir, "logs"), exist_ok=True)
 
+        # Short, sortable, collision-unlikely within a second. Used to group
+        # records and to let `report --session` select one measurement run.
+        self.session_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+
         self.raw_path = os.path.join(results_dir, "raw", "runs.jsonl")
         self.cells_path = os.path.join(results_dir, "raw", "matrix.json")
         self.env_path = os.path.join(results_dir, "raw", "environment.json")
@@ -201,6 +205,10 @@ class BenchmarkRunner:
 
     # -- persistence ------------------------------------------------------
     def _append_raw(self, record: dict[str, Any]) -> None:
+        # Stamp every record with the session that produced it. runs.jsonl is
+        # append-only across sessions on a shared machine, so without this the
+        # report has no way to keep two days of measurement apart.
+        record.setdefault("session_id", self.session_id)
         with open(self.raw_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, default=str) + "\n")
             f.flush()
@@ -561,6 +569,7 @@ class BenchmarkRunner:
         self._write_json(self.versions_path, vers)
         self._append_raw({
             "kind": "session",
+            "session_label": self.session_id,
             "environment": env,
             "versions": vers,
             "corpus_source": corpus_source,

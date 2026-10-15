@@ -21,7 +21,92 @@ import pandas as pd
 # loading
 # --------------------------------------------------------------------------
 
-def load_raw(results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
+def _legacy_session_id(timestamp_utc: str | None, ordinal: int) -> str:
+    """Stable id for a session record written before session stamping existed."""
+    if not timestamp_utc:
+        return f"unattributed-{ordinal:02d}"
+    compact = "".join(ch for ch in timestamp_utc if ch.isdigit())
+    return f"legacy-{compact}" if compact else f"unattributed-{ordinal:02d}"
+
+
+def list_sessions(results_dir: str) -> list[dict[str, Any]]:
+    """Every session found in runs.jsonl, oldest first.
+
+    runs.jsonl is append-only and shared across runs, so the file can hold
+    several days of measurement. Records written before session stamping was
+    added carry no `session_id`; they are attributed to the session record that
+    most recently preceded them in the file, which is the only ordering
+    information available.
+    """
+    path = os.path.join(results_dir, "raw", "runs.jsonl")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"no raw results at {path}")
+
+    order: list[str] = []
+    meta: dict[str, dict[str, Any]] = {}
+    counts: dict[str, int] = {}
+    current = "unattributed"
+    legacy = False
+
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            sid = rec.get("session_id")
+            if rec.get("kind") == "session":
+                if not sid:
+                    # Legacy sessions predate stamping. Their environment
+                    # timestamp is the only durable identifier available, and
+                    # it is unique per session, so derive one rather than
+                    # collapsing every historical run into one bucket.
+                    ts = (rec.get("environment") or {}).get("timestamp_utc")
+                    sid = _legacy_session_id(ts, len(order))
+                if sid not in meta:
+                    order.append(sid)
+                    meta[sid] = {
+                        "session_id": sid,
+                        "started_utc": (rec.get("environment") or {}).get(
+                            "timestamp_utc"),
+                        "gpu": (rec.get("environment") or {}).get("gpu"),
+                        "python": (rec.get("environment") or {}).get("python"),
+                        "corpus_source": rec.get("corpus_source"),
+                        "vllm": (rec.get("versions") or {}).get("vllm"),
+                        "llamacpp": (rec.get("versions") or {}).get("llamacpp"),
+                    }
+            if sid is None:
+                sid = current
+                if rec.get("kind") not in ("session",):
+                    legacy = True
+            current = sid
+            if sid not in counts:
+                counts[sid] = 0
+                if sid not in meta:
+                    meta[sid] = {"session_id": sid, "started_utc": None,
+                                 "gpu": None, "python": None,
+                                 "corpus_source": None, "vllm": None,
+                                 "llamacpp": None}
+                    order.append(sid)
+            counts[sid] += 1
+
+    out = []
+    for sid in order:
+        row = dict(meta[sid])
+        row["n_records"] = counts.get(sid, 0)
+        out.append(row)
+    if legacy:
+        for row in out:
+            row["contains_unstamped_records"] = True
+    return out
+
+
+def load_raw(results_dir: str, session: str | None = None,
+             ) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
     perf_rows: list[dict] = []
     qual_rows: list[dict] = []
     other: list[dict] = []
@@ -36,6 +121,13 @@ def load_raw(results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
     perf_by_key: dict[tuple, dict] = {}
     qual_by_key: dict[tuple, dict] = {}
     superseded = 0
+    # which session each winning row came from, and whether any other session
+    # had also measured the same thing. Silently taking "last wins" across
+    # sessions is what made the tables unreadable.
+    provenance: dict[tuple, list[str]] = {}
+    cross_session_conflicts = 0
+    current = "unattributed"
+    legacy_seen = 0
 
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
@@ -47,6 +139,21 @@ def load_raw(results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
             except json.JSONDecodeError:
                 continue
 
+            sid = rec.get("session_id")
+            if rec.get("kind") == "session":
+                if not sid:
+                    ts = (rec.get("environment") or {}).get("timestamp_utc")
+                    sid = _legacy_session_id(ts, legacy_seen)
+                    legacy_seen += 1
+                current = sid
+            else:
+                # unstamped record written before session ids existed: the
+                # most recent session record in file order is the only
+                # ordering information available
+                sid = sid or current
+            if session is not None and sid != session:
+                continue
+
             kind = rec.get("kind")
             if kind == "perf_run":
                 row = _perf_row(rec)
@@ -55,11 +162,17 @@ def load_raw(results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
                            row["workload"], row["rep"])
                     if key in perf_by_key:
                         superseded += 1
+                        if provenance.get(key, [None])[-1] != sid:
+                            cross_session_conflicts += 1
+                    provenance.setdefault(key, []).append(sid)
+                    row["session_id"] = sid
                     perf_by_key[key] = row          # last wins
             elif kind == "quality_run":
                 row = _qual_row(rec)
                 if row:
                     key = (row["backend"], row["model_key"], row["quant_level"])
+                    provenance.setdefault(key, []).append(sid)
+                    row["session_id"] = sid
                     qual_by_key[key] = row
             else:
                 other.append(rec)
@@ -67,8 +180,13 @@ def load_raw(results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
     perf_rows = list(perf_by_key.values())
     qual_rows = list(qual_by_key.values())
     if superseded:
-        print(f"[report] collapsed {superseded} duplicate perf records "
-              f"(same cell/workload/replicate measured more than once)")
+        msg = f"[report] collapsed {superseded} duplicate perf records"
+        if cross_session_conflicts:
+            msg += (f", of which {cross_session_conflicts} were measured by more "
+                    f"than one session (last one wins)")
+        print(msg)
+    if session is not None:
+        print(f"[report] filtered to session {session}")
     return pd.DataFrame(perf_rows), pd.DataFrame(qual_rows), other
 
 
@@ -411,9 +529,10 @@ def md_table(df: pd.DataFrame, floatfmt: str = "{:.1f}", max_rows: int | None = 
     return "\n".join(lines) + "\n"
 
 
-def write_all(results_dir: str, reports_dir: str) -> dict[str, Any]:
+def write_all(results_dir: str, reports_dir: str,
+              session: str | None = None) -> dict[str, Any]:
     os.makedirs(reports_dir, exist_ok=True)
-    perf, qual, other = load_raw(results_dir)
+    perf, qual, other = load_raw(results_dir, session=session)
 
     summary_dir = os.path.join(reports_dir, "tables")
     fig_dir = os.path.join(reports_dir, "figures")
@@ -489,6 +608,14 @@ def write_all(results_dir: str, reports_dir: str) -> dict[str, Any]:
     outputs["figures"] = make_figures(perf, qual, fig_dir)
     outputs["n_perf_runs"] = len(perf)
     outputs["n_quality_runs"] = len(qual)
+    outputs["session"] = session
+
+    # A reader must be able to tell which measurement session each table came
+    # from, and which sessions exist in the file at all.
+    sessions = list_sessions(results_dir)
+    pd.DataFrame(sessions).to_csv(
+        os.path.join(summary_dir, "sessions.csv"), index=False)
+    outputs["sessions"] = sessions
     return outputs
 
 

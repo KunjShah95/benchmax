@@ -152,8 +152,13 @@ def cmd_gen_quality(args) -> None:
 
 def cmd_report(args) -> None:
     from .analysis import build_all
-    from .report import write_all
-    out = write_all(args.results, args.reports)
+    from .report import list_sessions, write_all
+
+    if args.list_sessions:
+        print(json.dumps(list_sessions(args.results), indent=2, default=str))
+        return
+
+    out = write_all(args.results, args.reports, session=args.session)
     derived = build_all(args.results, args.reports)
     print(json.dumps({
         "perf_runs": out.get("n_perf_runs"),
@@ -293,6 +298,10 @@ def main() -> None:
     p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("report")
+    p.add_argument("--session", default=None,
+                   help="restrict tables to one session id (see --list-sessions)")
+    p.add_argument("--list-sessions", action="store_true",
+                   help="print the sessions present in runs.jsonl and exit")
     p.set_defaults(func=cmd_report)
 
     p = sub.add_parser("quality")
