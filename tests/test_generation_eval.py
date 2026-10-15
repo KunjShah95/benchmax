@@ -49,6 +49,40 @@ def test_normalise_and_exact_match():
     assert g.is_exact_match("4", "4") is True
 
 
+def test_default_stops_are_applied():
+    assert "\n" in g.DEFAULT_STOPS
+
+    captured = {}
+
+    class StopClient:
+        def complete_once(self, *a, **k):
+            captured.update(k)
+            return {"raw": {"choices": [{"text": "4"}]}, "wall_s": 0.01}
+
+    g.evaluate_generation(StopClient(), dataset=[
+        {"id": "s1", "prompt": "p", "expected": "4"}])
+    assert captured.get("stop") == g.DEFAULT_STOPS
+
+
+def test_stop_none_uses_defaults_and_empty_disables():
+    class NoStopClient:
+        def __init__(self):
+            self.calls = []
+
+        def complete_once(self, *a, **k):
+            self.calls.append(k.get("stop"))
+            return {"raw": {"choices": [{"text": "4"}]}, "wall_s": 0.01}
+
+    ds = [{"id": "s1", "prompt": "p", "expected": "4"}]
+    c1 = NoStopClient()
+    g.evaluate_generation(c1, dataset=ds)
+    assert c1.calls[0] == g.DEFAULT_STOPS
+
+    c2 = NoStopClient()
+    g.evaluate_generation(c2, dataset=ds, stop=[])
+    assert c2.calls[0] == []
+
+
 def test_generation_eval_runs_against_mock(mock_url):
     client = OpenAICompatClient(mock_url, model="mock-model")
     result = g.evaluate_generation(client, max_tokens=4)

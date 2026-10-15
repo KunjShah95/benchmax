@@ -468,6 +468,8 @@ def write_all(results_dir: str, reports_dir: str) -> dict[str, Any]:
                 "total_prompt_tokens": q.get("total_prompt_tokens"),
                 "total_completion_tokens": q.get("total_completion_tokens"),
                 "usage_coverage": q.get("usage_coverage"),
+                "n_contains_match": q.get("n_contains_match"),
+                "contains_match_accuracy": q.get("contains_match_accuracy"),
             })
         if gen_rows:
             gen_df = pd.DataFrame(gen_rows)

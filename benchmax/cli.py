@@ -21,6 +21,18 @@ from . import config as C
 DEFAULT_ENV_ROOT = os.path.expanduser("~/benchmax-env")
 
 
+def _gen_stops(raw: list[str] | None) -> list[str] | None:
+    """Translate --gen-stop values.
+
+    None  -> use module defaults
+    []    -> --gen-stop '' (disable stopping)
+    list  -> literal stop strings
+    """
+    if raw is None:
+        return None
+    return list(raw)
+
+
 def _models_by_key(keys: list[str] | None) -> list[C.ModelSpec]:
     if not keys:
         return C.MODELS
@@ -95,6 +107,8 @@ def cmd_run(args) -> None:
         device=args.device,
         warmup_reps=args.warmup,
         n_ppl_chunks=args.ppl_chunks,
+        gen_max_tokens=args.gen_max_tokens,
+        gen_stops=_gen_stops(args.gen_stop),
     )
     limits = {"backends": args.backends, "models": args.models,
               "quants": args.quants}
@@ -127,6 +141,7 @@ def cmd_gen_quality(args) -> None:
         temperature=args.temperature,
         seed=args.seed,
         run_id=args.run_id,
+        stop=_gen_stops(args.gen_stop),
     )
     text = json.dumps(result, indent=2, default=str)
     print(text)
@@ -268,6 +283,11 @@ def main() -> None:
     p.add_argument("--ppl-chunks", type=int, default=12)
     p.add_argument("--warmup", type=int, default=3,
                    help="discarded warmup sweeps per cell before measuring")
+    p.add_argument("--gen-max-tokens", type=int, default=64,
+                   help="max_tokens for the generation-quality probe")
+    p.add_argument("--gen-stop", nargs="*", default=None,
+                   help="stop strings for generation-quality; omit for defaults, "
+                        "pass --gen-stop '' to disable stopping")
     p.add_argument("--resume", action="store_true",
                    help="skip cells already fully measured in runs.jsonl")
     p.set_defaults(func=cmd_run)
@@ -292,6 +312,8 @@ def main() -> None:
     p.add_argument("--max-tokens", type=int, default=64)
     p.add_argument("--temperature", type=float, default=0.0)
     p.add_argument("--seed", type=int, default=1234)
+    p.add_argument("--gen-stop", nargs="*", default=None,
+                   help="stop strings; omit for defaults, pass --gen-stop '' to disable")
     p.add_argument("--run-id", default="gen-quality")
     p.add_argument("--out", default=None, help="optional output JSON path")
     p.set_defaults(func=cmd_gen_quality)
