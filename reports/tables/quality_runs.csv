@@ -1,6 +1,6 @@
 backend,model_key,model,family,quant_level,quant_scheme,ppl,ppl_stderr,ppl_method,ppl_context_tokens,ppl_tokens,ppl_chunks,ppl_status,ppl_prompt_eval_tok_s,mc_acc,mc_n,mc_wilson_lo,mc_wilson_hi,mc_status,mc_reason
-llamacpp,qwen3-0.6b,Qwen3-0.6B,Qwen3,4bit,Q4_K_M (GGUF),15.7493,0.22946,llama.cpp perplexity tool (offline),2048.0,,,ok,6689.112500442294,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
-llamacpp,qwen3-0.6b,Qwen3-0.6B,Qwen3,8bit,Q8_0 (GGUF),15.1991,0.22076,llama.cpp perplexity tool (offline),2048.0,,,ok,10729.9917809206,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
+llamacpp,qwen3-0.6b,Qwen3-0.6B,Qwen3,4bit,Q4_K_M (GGUF),,,server echo logprobs,,,,error,,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
+llamacpp,qwen3-0.6b,Qwen3-0.6B,Qwen3,8bit,Q8_0 (GGUF),,,server echo logprobs,,,,error,,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
 llamacpp,qwen3-0.6b,Qwen3-0.6B,Qwen3,16bit,BF16 (GGUF),15.2465,0.22196,llama.cpp perplexity tool (offline),2048.0,,,ok,5853.299536816232,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
 llamacpp,qwen3-4b,Qwen3-4B,Qwen3,4bit,Q4_K_M (GGUF),10.4624,0.15144,llama.cpp perplexity tool (offline),2048.0,,,ok,2771.483692751667,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
 llamacpp,qwen3-4b,Qwen3-4B,Qwen3,8bit,Q8_0 (GGUF),10.3708,0.15027,llama.cpp perplexity tool (offline),2048.0,,,ok,2535.2071267626775,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
@@ -10,7 +10,7 @@ llamacpp,llama32-1b,Llama-3.2-1B-Instruct,Llama-3.2,16bit,F16 (GGUF),10.4179,0.1
 llamacpp,llama32-3b,Llama-3.2-3B-Instruct,Llama-3.2,4bit,Q4_K_M (GGUF),8.2436,0.09619,llama.cpp perplexity tool (offline),2048.0,,,ok,3444.965858606765,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
 llamacpp,llama32-3b,Llama-3.2-3B-Instruct,Llama-3.2,8bit,Q8_0 (GGUF),8.1465,0.09508,llama.cpp perplexity tool (offline),2048.0,,,ok,3696.660966496656,,,,,skipped,top-logprobs not served by llama.cpp /v1/completions
 vllm,qwen3-0.6b,Qwen3-0.6B,Qwen3,int8,GPTQ-INT8 (W8A16),14.998749766596829,,server echo logprobs,,18174.0,12.0,ok,,0.26229508196721313,61.0,0.16838645195913188,0.38436980328441556,ok,
-vllm,qwen3-0.6b,Qwen3-0.6B,Qwen3,8bit,"FP8 (W8A8, e4m3)",15.216574325225029,,server echo logprobs,,18174.0,12.0,ok,,0.22950819672131148,61.0,0.141931023788832,0.34913643907451497,ok,
+vllm,qwen3-0.6b,Qwen3-0.6B,Qwen3,8bit,"FP8 (W8A8, e4m3)",15.223440946644732,,server echo logprobs,,18174.0,12.0,ok,,0.19672131147540983,61.0,0.11627688559536849,0.3131017848877781,ok,
 vllm,qwen3-0.6b,Qwen3-0.6B,Qwen3,16bit,BF16 (unquantized),14.939188877282675,,server echo logprobs,,18174.0,12.0,ok,,0.26229508196721313,61.0,0.16838645195913188,0.38436980328441556,ok,
 vllm,qwen3-1.7b,Qwen3-1.7B,Qwen3,int8,GPTQ-INT8 (W8A16),12.516593157109282,,server echo logprobs,,18174.0,12.0,ok,,0.22950819672131148,61.0,0.141931023788832,0.34913643907451497,ok,
 vllm,qwen3-1.7b,Qwen3-1.7B,Qwen3,8bit,"FP8 (W8A8, e4m3)",12.433294135123932,,server echo logprobs,,18174.0,12.0,ok,,0.2459016393442623,61.0,0.15506522999562844,0.36684662905781873,ok,

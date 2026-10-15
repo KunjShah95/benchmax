@@ -2,8 +2,6 @@ axis,backend,model,quant_level,quant_scheme,value,reference,ratio,workload
 perplexity,llamacpp,Llama-3.2-1B-Instruct,4bit,Q4_K_M (GGUF),10.644,10.4179,1.0217030303612054,
 perplexity,llamacpp,Llama-3.2-1B-Instruct,8bit,Q8_0 (GGUF),10.4113,10.4179,0.999366475009359,
 perplexity,llamacpp,Llama-3.2-1B-Instruct,16bit,F16 (GGUF),10.4179,10.4179,1.0,
-perplexity,llamacpp,Qwen3-0.6B,4bit,Q4_K_M (GGUF),15.7493,15.2465,1.0329780605384842,
-perplexity,llamacpp,Qwen3-0.6B,8bit,Q8_0 (GGUF),15.1991,15.2465,0.9968910897583052,
 perplexity,llamacpp,Qwen3-0.6B,16bit,BF16 (GGUF),15.2465,15.2465,1.0,
 perplexity,llamacpp,Qwen3-1.7B,4bit,Q4_K_M (GGUF),13.3727,13.0383,1.025647515396946,
 perplexity,llamacpp,Qwen3-1.7B,8bit,Q8_0 (GGUF),13.0035,13.0383,0.9973309403833323,
@@ -11,7 +9,7 @@ perplexity,llamacpp,Qwen3-1.7B,16bit,BF16 (GGUF),13.0383,13.0383,1.0,
 perplexity,vllm,Llama-3.2-1B-Instruct,8bit,FP8 dynamic (W8A8),10.741275128997476,10.667936914132607,1.0068746389723877,
 perplexity,vllm,Llama-3.2-1B-Instruct,16bit,BF16 (unquantized),10.667936914132607,10.667936914132607,1.0,
 perplexity,vllm,Qwen3-0.6B,int8,GPTQ-INT8 (W8A16),14.998749766596829,14.939188877282675,1.0039868891011028,
-perplexity,vllm,Qwen3-0.6B,8bit,"FP8 (W8A8, e4m3)",15.216574325225029,14.939188877282675,1.0185676377895028,
+perplexity,vllm,Qwen3-0.6B,8bit,"FP8 (W8A8, e4m3)",15.223440946644732,14.939188877282675,1.0190272759583558,
 perplexity,vllm,Qwen3-0.6B,16bit,BF16 (unquantized),14.939188877282675,14.939188877282675,1.0,
 perplexity,vllm,Qwen3-1.7B,int8,GPTQ-INT8 (W8A16),12.516593157109282,12.523109126905219,0.9994796843395753,
 perplexity,vllm,Qwen3-1.7B,8bit,"FP8 (W8A8, e4m3)",12.433294135123932,12.523109126905219,0.9928280596398921,
@@ -20,15 +18,15 @@ throughput,llamacpp,llama32-1b,16bit,F16 (GGUF),88.2146943899794,88.214694389979
 throughput,llamacpp,llama32-1b,4bit,Q4_K_M (GGUF),194.719888366535,88.2146943899794,2.2073407351582217,w1_single_short
 throughput,llamacpp,llama32-1b,8bit,Q8_0 (GGUF),133.71056700610265,88.2146943899794,1.5157402962254243,w1_single_short
 throughput,llamacpp,qwen3-0.6b,16bit,BF16 (GGUF),134.6930728998867,134.6930728998867,1.0,w1_single_short
-throughput,llamacpp,qwen3-0.6b,4bit,Q4_K_M (GGUF),231.73046250776966,134.6930728998867,1.7204334084797956,w1_single_short
-throughput,llamacpp,qwen3-0.6b,8bit,Q8_0 (GGUF),218.01761954091486,134.6930728998867,1.6186253297744628,w1_single_short
+throughput,llamacpp,qwen3-0.6b,4bit,Q4_K_M (GGUF),238.84466135452212,134.6930728998867,1.7732512609022453,w1_single_short
+throughput,llamacpp,qwen3-0.6b,8bit,Q8_0 (GGUF),214.7097126662543,134.6930728998867,1.5940664805074392,w1_single_short
 throughput,llamacpp,qwen3-1.7b,16bit,BF16 (GGUF),62.82694287953736,62.82694287953736,1.0,w1_single_short
 throughput,llamacpp,qwen3-1.7b,4bit,Q4_K_M (GGUF),146.11163985933743,62.82694287953736,2.3256207156138067,w1_single_short
 throughput,llamacpp,qwen3-1.7b,8bit,Q8_0 (GGUF),108.66793530625561,62.82694287953736,1.7296390740293142,w1_single_short
 throughput,vllm,llama32-1b,16bit,BF16 (unquantized),15.294749192407167,15.294749192407167,1.0,w1_single_short
 throughput,vllm,llama32-1b,8bit,FP8 dynamic (W8A8),31.457730783460022,15.294749192407167,2.056766697362825,w1_single_short
 throughput,vllm,qwen3-0.6b,16bit,BF16 (unquantized),130.2224660095393,130.2224660095393,1.0,w1_single_short
-throughput,vllm,qwen3-0.6b,8bit,"FP8 (W8A8, e4m3)",184.10036905627646,130.2224660095393,1.4137373887758384,w1_single_short
+throughput,vllm,qwen3-0.6b,8bit,"FP8 (W8A8, e4m3)",180.84656635963643,130.2224660095393,1.3887508960734067,w1_single_short
 throughput,vllm,qwen3-0.6b,int8,GPTQ-INT8 (W8A16),183.50947031962255,130.2224660095393,1.4091997789857533,w1_single_short
 throughput,vllm,qwen3-1.7b,16bit,BF16 (unquantized),63.22876936726868,63.22876936726868,1.0,w1_single_short
 throughput,vllm,qwen3-1.7b,8bit,"FP8 (W8A8, e4m3)",92.34719927482926,63.22876936726868,1.460525014150191,w1_single_short

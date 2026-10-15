@@ -416,6 +416,7 @@ class BenchmarkRunner:
             "memory_overall": peak,
             "n_workloads": len(self.workloads),
             "repeats": self.repeats,
+            "capability_gaps": getattr(backend, "capability_gaps", []),
         })
         print(f"[cell] done {cell.backend} {cell.model_label} {cell.quant_level}",
               flush=True)

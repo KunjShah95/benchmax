@@ -189,6 +189,7 @@ def startup_table(other: list[dict]) -> pd.DataFrame:
             "startup_s": r.get("startup_s"),
             "gpu_peak_mib": (r.get("memory_overall") or {}).get("gpu_peak_mib"),
             "host_rss_peak_mib": (r.get("memory_overall") or {}).get("host_rss_peak_mib"),
+            "capability_gaps": "; ".join(r.get("capability_gaps") or []) or None,
         })
     return pd.DataFrame(rows)
 
