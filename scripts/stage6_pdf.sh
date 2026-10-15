@@ -16,6 +16,7 @@ echo "### 2/2  render PDFs (self-contained, figures embedded)"
 python scripts/md_to_pdf.py \
   reports/pdf/DATA_APPENDIX.md \
   reports/REPORT.md \
+  reports/BACKEND_COMPARISON.md \
   README.md \
   -o reports/pdf
 

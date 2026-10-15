@@ -8,7 +8,7 @@ Every table below is generated from `results/raw/runs.jsonl` by `python -m bench
 
 | key | value |
 |---|---|
-| `timestamp_utc` | 2026-10-15T02:42:07Z |
+| `timestamp_utc` | 2026-10-15T03:04:27Z |
 | `platform` | Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39 |
 | `python` | 3.12.3 |
 | `logical_cores` | 20 |
@@ -38,30 +38,9 @@ Latency in ms, throughput in tok/s, memory in MiB. Averaged across all four work
 
 | backend | model | quant_level | ttft_ms | ttft_sd | tpot_ms | itl_p99 | tok_s | goodput | vram_mib | n_reps |
 |---|---|---|---|---|---|---|---|---|---|---|
-| llamacpp | Llama-3.2-1B-Instruct | 16bit | 993.82 | 1,564.1 | 13.67 | 15.66 | 268.61 | 183.61 | 4637 | 12 |
-| llamacpp | Llama-3.2-1B-Instruct | 4bit | 922.71 | 1,520.9 | 10.02 | 13.91 | 337.27 | 242.46 | 3019 | 12 |
-| llamacpp | Llama-3.2-1B-Instruct | 8bit | 929.87 | 1,585.8 | 11.29 | 16.65 | 314.28 | 230.67 | 3532 | 12 |
-| llamacpp | Llama-3.2-3B-Instruct | 4bit | 2,343.2 | 3,278.5 | 19.97 | 25.99 | 152.24 | 82.75 | 5270 | 12 |
-| llamacpp | Llama-3.2-3B-Instruct | 8bit | 1,849.2 | 2,729.8 | 19.76 | 21.10 | 164.97 | 76.05 | 6733 | 12 |
-| llamacpp | Qwen3-0.6B | 16bit | 978.81 | 1,632.9 | 10.29 | 14.79 | 332.87 | 246.13 | 3699 | 12 |
-| llamacpp | Qwen3-0.6B | 4bit | 882.35 | 1,443.1 | 8.99 | 12.22 | 370.46 | 273.68 | 2994 | 12 |
-| llamacpp | Qwen3-0.6B | 8bit | 940.14 | 1,529.2 | 9.42 | 13.72 | 349.35 | 257.03 | 3481 | 12 |
-| llamacpp | Qwen3-1.7B | 16bit | 2,080.7 | 2,834.3 | 20.07 | 24.09 | 154.74 | 71.91 | 5980 | 12 |
-| llamacpp | Qwen3-1.7B | 4bit | 1,117.0 | 1,835.5 | 13.04 | 14.61 | 261.20 | 189.05 | 3832 | 12 |
-| llamacpp | Qwen3-1.7B | 8bit | 1,206.0 | 1,964.8 | 14.55 | 17.45 | 237.29 | 166.30 | 4507 | 12 |
-| llamacpp | Qwen3-4B | 4bit | 2,327.2 | 3,841.7 | 26.84 | 30.36 | 127.81 | 92.86 | 5951 | 12 |
-| llamacpp | Qwen3-4B | 8bit | 2,478.7 | 3,599.6 | 26.98 | 31.52 | 121.43 | 56.31 | 7568 | 12 |
-| vllm | Llama-3.2-1B-Instruct | 16bit | 701.22 | 1,119.0 | 70.76 | 127.57 | 126.30 | 94.70 | 7331 | 12 |
-| vllm | Llama-3.2-1B-Instruct | 8bit | 449.94 | 743.54 | 48.11 | 76.26 | 172.52 | 139.88 | 7218 | 12 |
-| vllm | Llama-3.2-3B-Instruct | 8bit | 590.35 | 823.61 | 83.93 | 176.62 | 109.69 | 48.57 | 7389 | 12 |
-| vllm | Qwen3-0.6B | 16bit | 49.46 | 40.12 | 8.46 | 10.88 | 1,015.0 | 1,015.0 | 6981 | 12 |
-| vllm | Qwen3-0.6B | 8bit | 46.26 | 45.28 | 6.44 | 8.91 | 1,220.3 | 1,220.3 | 7240 | 12 |
-| vllm | Qwen3-0.6B | int8 | 46.00 | 46.22 | 6.59 | 9.25 | 1,139.9 | 1,139.9 | 7426 | 12 |
-| vllm | Qwen3-1.7B | 16bit | 88.10 | 106.99 | 17.28 | 21.16 | 509.97 | 509.97 | 6882 | 12 |
-| vllm | Qwen3-1.7B | 8bit | 90.71 | 129.68 | 12.16 | 15.30 | 682.09 | 682.09 | 6970 | 12 |
-| vllm | Qwen3-1.7B | int8 | 88.30 | 121.12 | 12.15 | 15.82 | 682.13 | 682.13 | 7067 | 12 |
-| vllm | Qwen3-4B | 4bit | 179.12 | 293.80 | 16.44 | 19.89 | 476.09 | 440.61 | 7150 | 12 |
-| vllm | Qwen3-4B | 8bit | 190.08 | 318.25 | 22.63 | 32.14 | 372.14 | 337.84 | 7415 | 12 |
+| llamacpp | Qwen3-0.6B | 4bit | 1,579.3 | 1,656.4 | 7.71 | 10.51 | 407.48 | 185.79 | 3831 | 6 |
+| llamacpp | Qwen3-0.6B | 8bit | 1,364.2 | 1,419.1 | 7.33 | 9.36 | 433.79 | 186.00 | 3925 | 6 |
+| vllm | Qwen3-0.6B | 8bit | 93.86 | 100.75 | 8.56 | 15.38 | 1,426.3 | 1,426.3 | 7896 | 6 |
 
 ## Performance by workload, backend and quantization
 
@@ -69,34 +48,12 @@ This is the table to cite for any concurrency-specific claim.
 
 | workload | backend | quant_level | ttft_ms | ttft_sd | ttft_p95 | tpot_ms | tpot_sd | tpot_p95 | itl_p50 | itl_p99 | tok_s | tok_s_sd | prefill_tok_s | prefill_tok_s_std | goodput | goodput_tok_s_std | vram_mib | rss_mib | n_reps |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| w1_single_short | llamacpp | 16bit | 34.06 | 43.63 | 34.06 | 11.38 | 3.53 | 11.38 | 11.28 | 12.57 | 95.24 | 31.60 | 37.43 | 12.29 | 95.24 | 31.60 | 5834 | 3,661.0 | 9 |
-| w1_single_short | llamacpp | 4bit | 21.98 | 11.85 | 21.98 | 7.82 | 3.50 | 7.82 | 7.64 | 9.62 | 150.58 | 62.63 | 59.28 | 24.57 | 150.58 | 62.63 | 5916 | 3,710.3 | 15 |
-| w1_single_short | llamacpp | 8bit | 25.89 | 12.44 | 25.89 | 11.24 | 5.86 | 11.24 | 11.19 | 12.74 | 114.55 | 60.48 | 45.06 | 23.61 | 114.55 | 60.48 | 7539 | 3,810.1 | 15 |
-| w1_single_short | vllm | 16bit | 42.34 | 32.27 | 42.34 | 29.55 | 27.08 | 29.55 | 29.95 | 39.20 | 69.58 | 50.12 | 27.22 | 19.53 | 69.58 | 50.12 | 7331 | 3,890.9 | 9 |
-| w1_single_short | vllm | 4bit | 28.81 | 7.23 | 28.81 | 13.86 | 0.37 | 13.86 | 13.74 | 17.19 | 71.55 | 2.06 | 27.95 | 0.80 | 71.55 | 2.06 | 7150 | 3,927.0 | 3 |
-| w1_single_short | vllm | 8bit | 48.20 | 38.05 | 48.20 | 31.90 | 31.15 | 31.90 | 32.07 | 41.91 | 73.29 | 62.71 | 28.69 | 24.45 | 73.29 | 62.71 | 7415 | 4,102.2 | 15 |
-| w1_single_short | vllm | int8 | 18.25 | 4.38 | 18.25 | 8.07 | 2.95 | 8.07 | 7.99 | 10.48 | 137.85 | 50.14 | 53.85 | 19.58 | 137.85 | 50.14 | 7426 | 3,838.3 | 6 |
-| w2_single_prefill | llamacpp | 16bit | 53.76 | 63.69 | 53.76 | 12.20 | 4.05 | 12.20 | 12.13 | 13.67 | 86.06 | 28.42 | 1,388.1 | 458.28 | 86.06 | 28.42 | 5841 | 3,663.8 | 9 |
-| w2_single_prefill | llamacpp | 4bit | 73.49 | 109.39 | 73.49 | 8.38 | 3.80 | 8.38 | 8.30 | 10.12 | 130.51 | 56.69 | 2,105.3 | 914.53 | 130.51 | 56.69 | 5951 | 3,712.7 | 15 |
-| w2_single_prefill | llamacpp | 8bit | 67.73 | 92.12 | 67.73 | 11.93 | 6.17 | 11.93 | 11.85 | 13.32 | 101.84 | 53.68 | 1,642.8 | 865.59 | 101.84 | 53.68 | 7539 | 3,812.4 | 15 |
-| w2_single_prefill | vllm | 16bit | 206.18 | 431.62 | 206.18 | 30.48 | 27.79 | 30.48 | 30.68 | 36.31 | 63.24 | 44.85 | 1,019.8 | 723.10 | 61.99 | 46.60 | 7331 | 3,890.9 | 9 |
-| w2_single_prefill | vllm | 4bit | 123.28 | 163.21 | 123.28 | 14.42 | 0.33 | 14.42 | 14.33 | 17.06 | 62.87 | 8.75 | 1,013.7 | 141.17 | 62.87 | 8.75 | 7150 | 3,927.0 | 3 |
-| w2_single_prefill | vllm | 8bit | 207.63 | 354.36 | 207.63 | 33.79 | 30.80 | 33.79 | 31.95 | 47.71 | 67.43 | 62.64 | 1,087.4 | 1,009.9 | 66.57 | 63.52 | 7415 | 4,102.2 | 15 |
-| w2_single_prefill | vllm | int8 | 44.59 | 46.69 | 44.59 | 8.23 | 3.05 | 8.23 | 8.19 | 10.64 | 128.72 | 48.34 | 2,075.7 | 779.44 | 128.72 | 48.34 | 7426 | 3,838.3 | 6 |
-| w3_concurrent_8 | llamacpp | 16bit | 747.74 | 1,082.5 | 751.33 | 16.78 | 5.27 | 16.78 | 16.56 | 21.09 | 432.40 | 175.27 | 381.63 | 154.39 | 388.91 | 247.23 | 5916 | 4,131.0 | 9 |
-| w3_concurrent_8 | llamacpp | 4bit | 587.34 | 856.16 | 593.53 | 23.21 | 9.98 | 23.22 | 22.96 | 29.41 | 354.58 | 150.18 | 313.03 | 132.43 | 332.67 | 186.62 | 5951 | 4,313.8 | 15 |
-| w3_concurrent_8 | llamacpp | 8bit | 655.70 | 825.94 | 660.49 | 20.58 | 7.14 | 20.61 | 20.29 | 26.04 | 375.13 | 148.06 | 331.34 | 131.06 | 323.12 | 222.72 | 7545 | 4,447.4 | 15 |
-| w3_concurrent_8 | vllm | 16bit | 253.60 | 501.35 | 282.05 | 32.25 | 31.37 | 33.54 | 30.77 | 63.18 | 533.69 | 400.93 | 469.86 | 352.44 | 523.79 | 413.82 | 7331 | 3,890.9 | 9 |
-| w3_concurrent_8 | vllm | 4bit | 129.71 | 106.40 | 142.07 | 14.76 | 0.13 | 15.21 | 14.53 | 18.65 | 509.56 | 25.37 | 448.36 | 22.32 | 509.56 | 25.37 | 7150 | 3,927.0 | 3 |
-| w3_concurrent_8 | vllm | 8bit | 230.66 | 347.11 | 254.24 | 31.73 | 25.50 | 32.67 | 29.50 | 69.58 | 520.99 | 455.23 | 458.82 | 400.18 | 515.13 | 461.55 | 7415 | 4,102.2 | 15 |
-| w3_concurrent_8 | vllm | int8 | 50.87 | 29.92 | 54.76 | 8.58 | 2.79 | 8.68 | 8.51 | 10.76 | 978.91 | 315.80 | 861.33 | 277.86 | 978.91 | 315.80 | 7426 | 3,838.3 | 6 |
-| w4_concurrent_32 | llamacpp | 16bit | 4,568.9 | 1,480.7 | 8,933.7 | 18.34 | 4.59 | 20.26 | 17.65 | 25.39 | 394.58 | 99.56 | 509.15 | 129.00 | 98.65 | 24.89 | 5980 | 4,960.9 | 9 |
-| w4_concurrent_32 | llamacpp | 4bit | 5,391.2 | 2,386.4 | 10,600.0 | 23.68 | 10.69 | 26.08 | 22.96 | 28.53 | 363.51 | 146.87 | 469.11 | 189.60 | 90.88 | 36.72 | 5951 | 5,138.5 | 15 |
-| w4_concurrent_32 | llamacpp | 8bit | 5,173.8 | 1,996.8 | 10,208.6 | 21.85 | 7.41 | 24.63 | 21.01 | 28.24 | 358.34 | 115.49 | 462.43 | 148.96 | 89.59 | 28.87 | 7568 | 5,271.4 | 15 |
-| w4_concurrent_32 | vllm | 16bit | 616.25 | 1,226.5 | 800.14 | 36.38 | 31.66 | 37.37 | 31.11 | 74.14 | 1,535.2 | 1,054.5 | 1,977.3 | 1,356.4 | 1,504.2 | 1,099.2 | 7331 | 3,891.6 | 9 |
-| w4_concurrent_32 | vllm | 4bit | 434.68 | 544.55 | 587.73 | 22.72 | 1.59 | 24.95 | 21.75 | 26.64 | 1,260.4 | 248.89 | 1,622.6 | 320.41 | 1,118.5 | 494.65 | 7150 | 3,927.6 | 3 |
-| w4_concurrent_32 | vllm | 8bit | 607.38 | 908.53 | 835.35 | 41.19 | 33.34 | 42.96 | 35.43 | 88.18 | 1,383.7 | 1,117.7 | 1,782.6 | 1,437.7 | 1,288.0 | 1,208.0 | 7415 | 4,102.7 | 15 |
-| w4_concurrent_32 | vllm | int8 | 154.89 | 151.62 | 199.38 | 12.61 | 3.44 | 12.90 | 12.34 | 18.28 | 2,398.5 | 638.28 | 3,087.7 | 821.70 | 2,398.5 | 638.28 | 7426 | 3,838.6 | 6 |
+| w1_single_short | llamacpp | 4bit | 69.20 | 99.38 | 69.20 | 4.02 | 0.14 | 4.02 | 3.90 | 5.66 | 223.80 | 31.51 | 87.42 | 12.31 | 223.80 | 31.51 | 3831 | 1,288.1 | 3 |
+| w1_single_short | llamacpp | 8bit | 71.13 | 104.12 | 71.13 | 4.38 | 0.06 | 4.38 | 4.29 | 5.64 | 206.79 | 29.36 | 80.78 | 11.47 | 206.79 | 29.36 | 3925 | 1,321.3 | 3 |
+| w1_single_short | vllm | 8bit | 26.61 | 4.60 | 26.61 | 6.60 | 0.28 | 6.60 | 6.32 | 10.87 | 147.95 | 6.04 | 57.79 | 2.36 | 147.95 | 6.04 | 7867 | 3,682.5 | 3 |
+| w4_concurrent_32 | llamacpp | 4bit | 3,089.4 | 89.64 | 5,713.1 | 11.40 | 1.16 | 12.85 | 10.98 | 15.36 | 591.16 | 22.65 | 761.03 | 29.16 | 147.79 | 5.66 | 3831 | 2,296.1 | 3 |
+| w4_concurrent_32 | llamacpp | 8bit | 2,657.2 | 90.68 | 5,040.3 | 10.29 | 0.25 | 11.46 | 10.02 | 13.09 | 660.79 | 19.38 | 850.67 | 24.95 | 165.20 | 4.85 | 3925 | 2,294.6 | 3 |
+| w4_concurrent_32 | vllm | 8bit | 161.11 | 108.57 | 203.89 | 10.51 | 0.17 | 10.98 | 10.08 | 19.90 | 2,704.6 | 206.91 | 3,481.8 | 266.36 | 2,704.6 | 206.91 | 7896 | 3,683.2 | 3 |
 
 ## TTFT / throughput frontier
 
@@ -110,8 +67,8 @@ This is the table to cite for any concurrency-specific claim.
 | w1_single_short | llamacpp | Llama-3.2-3B-Instruct | 4bit | 25.20 | 98.22 | 10.06 | 98.22 | False |
 | w1_single_short | llamacpp | Llama-3.2-3B-Instruct | 8bit | 30.65 | 66.89 | 14.82 | 66.89 | False |
 | w1_single_short | llamacpp | Qwen3-0.6B | 16bit | 15.35 | 134.69 | 7.36 | 134.69 | True |
-| w1_single_short | llamacpp | Qwen3-0.6B | 4bit | 21.77 | 238.84 | 4.05 | 238.84 | False |
-| w1_single_short | llamacpp | Qwen3-0.6B | 8bit | 19.61 | 214.71 | 4.54 | 214.71 | False |
+| w1_single_short | llamacpp | Qwen3-0.6B | 4bit | 69.20 | 223.80 | 4.02 | 223.80 | False |
+| w1_single_short | llamacpp | Qwen3-0.6B | 8bit | 71.13 | 206.79 | 4.38 | 206.79 | False |
 | w1_single_short | llamacpp | Qwen3-1.7B | 16bit | 68.34 | 62.83 | 15.51 | 62.83 | False |
 | w1_single_short | llamacpp | Qwen3-1.7B | 4bit | 20.11 | 146.11 | 6.74 | 146.11 | False |
 | w1_single_short | llamacpp | Qwen3-1.7B | 8bit | 20.95 | 108.67 | 9.11 | 108.67 | False |
@@ -121,7 +78,7 @@ This is the table to cite for any concurrency-specific claim.
 | w1_single_short | vllm | Llama-3.2-1B-Instruct | 8bit | 54.40 | 31.46 | 36.15 | 31.46 | True |
 | w1_single_short | vllm | Llama-3.2-3B-Instruct | 8bit | 116.65 | 11.42 | 87.40 | 11.42 | True |
 | w1_single_short | vllm | Qwen3-0.6B | 16bit | 19.77 | 130.22 | 7.59 | 130.22 | False |
-| w1_single_short | vllm | Qwen3-0.6B | 8bit | 17.40 | 180.85 | 5.46 | 180.85 | False |
+| w1_single_short | vllm | Qwen3-0.6B | 8bit | 26.61 | 147.95 | 6.60 | 147.95 | False |
 | w1_single_short | vllm | Qwen3-0.6B | int8 | 14.41 | 183.51 | 5.38 | 183.51 | True |
 | w1_single_short | vllm | Qwen3-1.7B | 16bit | 25.07 | 63.23 | 15.74 | 63.23 | True |
 | w1_single_short | vllm | Qwen3-1.7B | 8bit | 23.40 | 92.35 | 10.73 | 92.35 | False |
@@ -182,8 +139,8 @@ This is the table to cite for any concurrency-specific claim.
 | w4_concurrent_32 | llamacpp | Llama-3.2-3B-Instruct | 4bit | 7,486.7 | 224.56 | 30.66 | 56.14 | True |
 | w4_concurrent_32 | llamacpp | Llama-3.2-3B-Instruct | 8bit | 6,237.8 | 269.55 | 25.44 | 67.39 | True |
 | w4_concurrent_32 | llamacpp | Qwen3-0.6B | 16bit | 3,674.5 | 462.63 | 14.16 | 115.66 | False |
-| w4_concurrent_32 | llamacpp | Qwen3-0.6B | 4bit | 3,263.0 | 516.16 | 13.74 | 129.04 | False |
-| w4_concurrent_32 | llamacpp | Qwen3-0.6B | 8bit | 3,465.8 | 492.42 | 14.08 | 123.10 | False |
+| w4_concurrent_32 | llamacpp | Qwen3-0.6B | 4bit | 3,089.4 | 591.16 | 11.40 | 147.79 | False |
+| w4_concurrent_32 | llamacpp | Qwen3-0.6B | 8bit | 2,657.2 | 660.79 | 10.29 | 165.20 | False |
 | w4_concurrent_32 | llamacpp | Qwen3-1.7B | 16bit | 6,478.1 | 267.80 | 24.22 | 66.95 | True |
 | w4_concurrent_32 | llamacpp | Qwen3-1.7B | 4bit | 4,152.1 | 384.77 | 19.17 | 96.19 | False |
 | w4_concurrent_32 | llamacpp | Qwen3-1.7B | 8bit | 4,446.2 | 378.57 | 19.15 | 94.64 | False |
@@ -193,7 +150,7 @@ This is the table to cite for any concurrency-specific claim.
 | w4_concurrent_32 | vllm | Llama-3.2-1B-Instruct | 8bit | 1,050.5 | 485.94 | 58.13 | 355.35 | True |
 | w4_concurrent_32 | vllm | Llama-3.2-3B-Instruct | 8bit | 1,196.5 | 308.59 | 94.53 | 97.68 | True |
 | w4_concurrent_32 | vllm | Qwen3-0.6B | 16bit | 99.27 | 2,788.7 | 10.66 | 2,788.7 | True |
-| w4_concurrent_32 | vllm | Qwen3-0.6B | 8bit | 100.36 | 3,222.3 | 9.11 | 3,222.3 | False |
+| w4_concurrent_32 | vllm | Qwen3-0.6B | 8bit | 161.11 | 2,704.6 | 10.51 | 2,704.6 | True |
 | w4_concurrent_32 | vllm | Qwen3-0.6B | int8 | 103.37 | 2,937.3 | 9.50 | 2,937.3 | False |
 | w4_concurrent_32 | vllm | Qwen3-1.7B | 16bit | 195.43 | 1,446.3 | 20.70 | 1,446.3 | True |
 | w4_concurrent_32 | vllm | Qwen3-1.7B | 8bit | 218.33 | 1,870.4 | 15.70 | 1,870.4 | False |
@@ -233,15 +190,15 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 | throughput | llamacpp | llama32-1b | 4bit | Q4_K_M (GGUF) | 194.72 | 88.21 | 2.21 | w1_single_short |
 | throughput | llamacpp | llama32-1b | 8bit | Q8_0 (GGUF) | 133.71 | 88.21 | 1.52 | w1_single_short |
 | throughput | llamacpp | qwen3-0.6b | 16bit | BF16 (GGUF) | 134.69 | 134.69 | 1.00 | w1_single_short |
-| throughput | llamacpp | qwen3-0.6b | 4bit | Q4_K_M (GGUF) | 238.84 | 134.69 | 1.77 | w1_single_short |
-| throughput | llamacpp | qwen3-0.6b | 8bit | Q8_0 (GGUF) | 214.71 | 134.69 | 1.59 | w1_single_short |
+| throughput | llamacpp | qwen3-0.6b | 4bit | Q4_K_M (GGUF) | 223.80 | 134.69 | 1.66 | w1_single_short |
+| throughput | llamacpp | qwen3-0.6b | 8bit | Q8_0 (GGUF) | 206.79 | 134.69 | 1.54 | w1_single_short |
 | throughput | llamacpp | qwen3-1.7b | 16bit | BF16 (GGUF) | 62.83 | 62.83 | 1.00 | w1_single_short |
 | throughput | llamacpp | qwen3-1.7b | 4bit | Q4_K_M (GGUF) | 146.11 | 62.83 | 2.33 | w1_single_short |
 | throughput | llamacpp | qwen3-1.7b | 8bit | Q8_0 (GGUF) | 108.67 | 62.83 | 1.73 | w1_single_short |
 | throughput | vllm | llama32-1b | 16bit | BF16 (unquantized) | 15.29 | 15.29 | 1.00 | w1_single_short |
 | throughput | vllm | llama32-1b | 8bit | FP8 dynamic (W8A8) | 31.46 | 15.29 | 2.06 | w1_single_short |
 | throughput | vllm | qwen3-0.6b | 16bit | BF16 (unquantized) | 130.22 | 130.22 | 1.00 | w1_single_short |
-| throughput | vllm | qwen3-0.6b | 8bit | FP8 (W8A8, e4m3) | 180.85 | 130.22 | 1.39 | w1_single_short |
+| throughput | vllm | qwen3-0.6b | 8bit | FP8 (W8A8, e4m3) | 147.95 | 130.22 | 1.14 | w1_single_short |
 | throughput | vllm | qwen3-0.6b | int8 | GPTQ-INT8 (W8A16) | 183.51 | 130.22 | 1.41 | w1_single_short |
 | throughput | vllm | qwen3-1.7b | 16bit | BF16 (unquantized) | 63.23 | 63.23 | 1.00 | w1_single_short |
 | throughput | vllm | qwen3-1.7b | 8bit | FP8 (W8A8, e4m3) | 92.35 | 63.23 | 1.46 | w1_single_short |
@@ -284,15 +241,15 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 | throughput | llamacpp | llama32-1b | 4bit | Q4_K_M (GGUF) | 505.68 | 453.32 | 1.12 | w4_concurrent_32 |
 | throughput | llamacpp | llama32-1b | 8bit | Q8_0 (GGUF) | 445.91 | 453.32 | 0.98 | w4_concurrent_32 |
 | throughput | llamacpp | qwen3-0.6b | 16bit | BF16 (GGUF) | 462.63 | 462.63 | 1.00 | w4_concurrent_32 |
-| throughput | llamacpp | qwen3-0.6b | 4bit | Q4_K_M (GGUF) | 516.16 | 462.63 | 1.12 | w4_concurrent_32 |
-| throughput | llamacpp | qwen3-0.6b | 8bit | Q8_0 (GGUF) | 492.42 | 462.63 | 1.06 | w4_concurrent_32 |
+| throughput | llamacpp | qwen3-0.6b | 4bit | Q4_K_M (GGUF) | 591.16 | 462.63 | 1.28 | w4_concurrent_32 |
+| throughput | llamacpp | qwen3-0.6b | 8bit | Q8_0 (GGUF) | 660.79 | 462.63 | 1.43 | w4_concurrent_32 |
 | throughput | llamacpp | qwen3-1.7b | 16bit | BF16 (GGUF) | 267.80 | 267.80 | 1.00 | w4_concurrent_32 |
 | throughput | llamacpp | qwen3-1.7b | 4bit | Q4_K_M (GGUF) | 384.77 | 267.80 | 1.44 | w4_concurrent_32 |
 | throughput | llamacpp | qwen3-1.7b | 8bit | Q8_0 (GGUF) | 378.57 | 267.80 | 1.41 | w4_concurrent_32 |
 | throughput | vllm | llama32-1b | 16bit | BF16 (unquantized) | 370.65 | 370.65 | 1.00 | w4_concurrent_32 |
 | throughput | vllm | llama32-1b | 8bit | FP8 dynamic (W8A8) | 485.94 | 370.65 | 1.31 | w4_concurrent_32 |
 | throughput | vllm | qwen3-0.6b | 16bit | BF16 (unquantized) | 2,788.7 | 2,788.7 | 1.00 | w4_concurrent_32 |
-| throughput | vllm | qwen3-0.6b | 8bit | FP8 (W8A8, e4m3) | 3,222.3 | 2,788.7 | 1.16 | w4_concurrent_32 |
+| throughput | vllm | qwen3-0.6b | 8bit | FP8 (W8A8, e4m3) | 2,704.6 | 2,788.7 | 0.97 | w4_concurrent_32 |
 | throughput | vllm | qwen3-0.6b | int8 | GPTQ-INT8 (W8A16) | 2,937.3 | 2,788.7 | 1.05 | w4_concurrent_32 |
 | throughput | vllm | qwen3-1.7b | 16bit | BF16 (unquantized) | 1,446.3 | 1,446.3 | 1.00 | w4_concurrent_32 |
 | throughput | vllm | qwen3-1.7b | 8bit | FP8 (W8A8, e4m3) | 1,870.4 | 1,446.3 | 1.29 | w4_concurrent_32 |
@@ -331,6 +288,9 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 | llamacpp | Qwen3-0.6B | 4bit | Q4_K_M (GGUF) | 2.01 | 2993 | 623.31 |
 | llamacpp | Qwen3-0.6B | 8bit | Q8_0 (GGUF) | 2.00 | 3225 | 641.17 |
 | vllm | Qwen3-0.6B | 8bit | FP8 (W8A8, e4m3) | 48.08 | 7863 | 3,678.1 |
+| llamacpp | Qwen3-0.6B | 4bit | Q4_K_M (GGUF) | 2.01 | 3831 | 2,391.3 |
+| llamacpp | Qwen3-0.6B | 8bit | Q8_0 (GGUF) | 3.01 | 3925 | 2,387.7 |
+| vllm | Qwen3-0.6B | 8bit | FP8 (W8A8, e4m3) | 53.20 | 7928 | 3,688.3 |
 
 ## Memory efficiency
 
@@ -338,16 +298,16 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 
 | workload | backend | model_key | model | params_b | quant_level | quant_scheme | out_tok_s | gpu_peak_mib | host_rss_peak_mib | tok_s_per_mib | vram_mib_per_1b_params |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| w1_single_short | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 4bit | Q4_K_M (GGUF) | 238.84 | 2992 | 2,859.6 | 0.08 | 4,986.7 |
 | w1_single_short | llamacpp | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 4bit | Q4_K_M (GGUF) | 194.72 | 2827 | 1,289.1 | 0.07 | 2,827.0 |
-| w1_single_short | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | Q8_0 (GGUF) | 214.71 | 3481 | 2,903.9 | 0.06 | 5,801.7 |
+| w1_single_short | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 4bit | Q4_K_M (GGUF) | 223.80 | 3831 | 1,288.1 | 0.06 | 6,385.0 |
+| w1_single_short | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | Q8_0 (GGUF) | 206.79 | 3925 | 1,321.3 | 0.05 | 6,541.7 |
 | w1_single_short | llamacpp | qwen3-1.7b | Qwen3-1.7B | 1.70 | 4bit | Q4_K_M (GGUF) | 146.11 | 3832 | 2,978.5 | 0.04 | 2,254.1 |
 | w1_single_short | llamacpp | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 8bit | Q8_0 (GGUF) | 133.71 | 3532 | 1,346.3 | 0.04 | 3,532.0 |
 | w1_single_short | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 16bit | BF16 (GGUF) | 134.69 | 3699 | 3,333.8 | 0.04 | 6,165.0 |
 | w1_single_short | llamacpp | qwen3-1.7b | Qwen3-1.7B | 1.70 | 8bit | Q8_0 (GGUF) | 108.67 | 4214 | 3,030.7 | 0.03 | 2,478.8 |
-| w1_single_short | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | FP8 (W8A8, e4m3) | 180.85 | 7240 | 3,789.5 | 0.02 | 12,066.7 |
 | w1_single_short | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | int8 | GPTQ-INT8 (W8A16) | 183.51 | 7426 | 3,805.3 | 0.02 | 12,376.7 |
 | w1_single_short | llamacpp | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 16bit | F16 (GGUF) | 88.21 | 4637 | 1,742.3 | 0.02 | 4,637.0 |
+| w1_single_short | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | FP8 (W8A8, e4m3) | 147.95 | 7867 | 3,682.5 | 0.02 | 13,111.7 |
 | w1_single_short | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 16bit | BF16 (unquantized) | 130.22 | 6934 | 3,752.6 | 0.02 | 11,556.7 |
 | w1_single_short | llamacpp | llama32-3b | Llama-3.2-3B-Instruct | 3.00 | 4bit | Q4_K_M (GGUF) | 98.22 | 5270 | 3,059.1 | 0.02 | 1,756.7 |
 | w1_single_short | vllm | qwen3-1.7b | Qwen3-1.7B | 1.70 | 8bit | FP8 (W8A8, e4m3) | 92.35 | 6970 | 3,812.7 | 0.01 | 4,100.0 |
@@ -410,16 +370,16 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 | w3_concurrent_8 | vllm | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 8bit | FP8 dynamic (W8A8) | 153.51 | 7218 | 4,040.3 | 0.02 | 7,218.0 |
 | w3_concurrent_8 | vllm | llama32-3b | Llama-3.2-3B-Instruct | 3.00 | 8bit | FP8 dynamic (W8A8) | 107.49 | 7389 | 4,102.2 | 0.01 | 2,463.0 |
 | w3_concurrent_8 | vllm | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 16bit | BF16 (unquantized) | 105.55 | 7331 | 3,890.9 | 0.01 | 7,331.0 |
-| w4_concurrent_32 | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | FP8 (W8A8, e4m3) | 3,222.3 | 7076 | 3,790.1 | 0.46 | 11,793.3 |
 | w4_concurrent_32 | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 16bit | BF16 (unquantized) | 2,788.7 | 6981 | 3,753.2 | 0.40 | 11,635.0 |
 | w4_concurrent_32 | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | int8 | GPTQ-INT8 (W8A16) | 2,937.3 | 7426 | 3,805.9 | 0.40 | 12,376.7 |
+| w4_concurrent_32 | vllm | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | FP8 (W8A8, e4m3) | 2,704.6 | 7896 | 3,683.2 | 0.34 | 13,160.0 |
 | w4_concurrent_32 | vllm | qwen3-1.7b | Qwen3-1.7B | 1.70 | 8bit | FP8 (W8A8, e4m3) | 1,870.4 | 6970 | 3,813.0 | 0.27 | 4,100.0 |
 | w4_concurrent_32 | vllm | qwen3-1.7b | Qwen3-1.7B | 1.70 | int8 | GPTQ-INT8 (W8A16) | 1,859.7 | 7067 | 3,838.6 | 0.26 | 4,157.1 |
 | w4_concurrent_32 | vllm | qwen3-1.7b | Qwen3-1.7B | 1.70 | 16bit | BF16 (unquantized) | 1,446.3 | 6882 | 3,745.7 | 0.21 | 4,048.2 |
 | w4_concurrent_32 | vllm | qwen3-4b | Qwen3-4B | 4.00 | 4bit | AWQ-INT4 (W4A16) | 1,260.4 | 7150 | 3,927.6 | 0.18 | 1,787.5 |
-| w4_concurrent_32 | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 4bit | Q4_K_M (GGUF) | 516.16 | 2994 | 4,090.6 | 0.17 | 4,990.0 |
+| w4_concurrent_32 | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | Q8_0 (GGUF) | 660.79 | 3925 | 2,294.6 | 0.17 | 6,541.7 |
 | w4_concurrent_32 | llamacpp | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 4bit | Q4_K_M (GGUF) | 505.68 | 3019 | 1,664.7 | 0.17 | 3,019.0 |
-| w4_concurrent_32 | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 8bit | Q8_0 (GGUF) | 492.42 | 3481 | 4,190.8 | 0.14 | 5,801.7 |
+| w4_concurrent_32 | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 4bit | Q4_K_M (GGUF) | 591.16 | 3831 | 2,296.1 | 0.15 | 6,385.0 |
 | w4_concurrent_32 | vllm | qwen3-4b | Qwen3-4B | 4.00 | 8bit | FP8 (W8A8, e4m3) | 1,031.5 | 7415 | 3,860.8 | 0.14 | 1,853.8 |
 | w4_concurrent_32 | llamacpp | llama32-1b | Llama-3.2-1B-Instruct | 1.00 | 8bit | Q8_0 (GGUF) | 445.91 | 3532 | 1,692.5 | 0.13 | 3,532.0 |
 | w4_concurrent_32 | llamacpp | qwen3-0.6b | Qwen3-0.6B | 0.60 | 16bit | BF16 (GGUF) | 462.63 | 3699 | 4,552.6 | 0.13 | 6,165.0 |
@@ -443,28 +403,7 @@ Normalised per (backend, model) against the same configuration's 16-bit referenc
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | llamacpp | Qwen3-0.6B | 4bit | Q4_K_M (GGUF) |  |  |  | server echo logprobs |  |  |  |  |
 | llamacpp | Qwen3-0.6B | 8bit | Q8_0 (GGUF) |  |  |  | server echo logprobs |  |  |  |  |
-| llamacpp | Qwen3-0.6B | 16bit | BF16 (GGUF) | 15.25 | 0.22 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Qwen3-4B | 4bit | Q4_K_M (GGUF) | 10.46 | 0.15 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Qwen3-4B | 8bit | Q8_0 (GGUF) | 10.37 | 0.15 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Llama-3.2-1B-Instruct | 4bit | Q4_K_M (GGUF) | 10.64 | 0.13 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Llama-3.2-1B-Instruct | 8bit | Q8_0 (GGUF) | 10.41 | 0.13 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Llama-3.2-1B-Instruct | 16bit | F16 (GGUF) | 10.42 | 0.13 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Llama-3.2-3B-Instruct | 4bit | Q4_K_M (GGUF) | 8.24 | 0.10 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Llama-3.2-3B-Instruct | 8bit | Q8_0 (GGUF) | 8.15 | 0.10 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| vllm | Qwen3-0.6B | int8 | GPTQ-INT8 (W8A16) | 15.00 |  |  | server echo logprobs | 0.26 | 61.00 | 0.17 | 0.38 |
 | vllm | Qwen3-0.6B | 8bit | FP8 (W8A8, e4m3) | 15.22 |  |  | server echo logprobs | 0.20 | 61.00 | 0.12 | 0.31 |
-| vllm | Qwen3-0.6B | 16bit | BF16 (unquantized) | 14.94 |  |  | server echo logprobs | 0.26 | 61.00 | 0.17 | 0.38 |
-| vllm | Qwen3-1.7B | int8 | GPTQ-INT8 (W8A16) | 12.52 |  |  | server echo logprobs | 0.23 | 61.00 | 0.14 | 0.35 |
-| vllm | Qwen3-1.7B | 8bit | FP8 (W8A8, e4m3) | 12.43 |  |  | server echo logprobs | 0.25 | 61.00 | 0.16 | 0.37 |
-| vllm | Qwen3-1.7B | 16bit | BF16 (unquantized) | 12.52 |  |  | server echo logprobs | 0.23 | 61.00 | 0.14 | 0.35 |
-| vllm | Qwen3-4B | 4bit | AWQ-INT4 (W4A16) | 11.41 |  |  | server echo logprobs | 0.25 | 61.00 | 0.16 | 0.37 |
-| vllm | Qwen3-4B | 8bit | FP8 (W8A8, e4m3) | 10.46 |  |  | server echo logprobs | 0.16 | 61.00 | 0.09 | 0.28 |
-| vllm | Llama-3.2-1B-Instruct | 8bit | FP8 dynamic (W8A8) | 10.74 |  |  | server echo logprobs | 0.30 | 61.00 | 0.20 | 0.42 |
-| vllm | Llama-3.2-1B-Instruct | 16bit | BF16 (unquantized) | 10.67 |  |  | server echo logprobs | 0.30 | 61.00 | 0.20 | 0.42 |
-| vllm | Llama-3.2-3B-Instruct | 8bit | FP8 dynamic (W8A8) | 8.59 |  |  | server echo logprobs | 0.48 | 61.00 | 0.36 | 0.60 |
-| llamacpp | Qwen3-1.7B | 4bit | Q4_K_M (GGUF) | 13.37 | 0.21 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Qwen3-1.7B | 8bit | Q8_0 (GGUF) | 13.00 | 0.20 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
-| llamacpp | Qwen3-1.7B | 16bit | BF16 (GGUF) | 13.04 | 0.20 | 2,048.0 | llama.cpp perplexity tool (offline) |  |  |  |  |
 
 ## Capability gaps
 
@@ -501,6 +440,10 @@ Recorded rather than hidden: these are properties of the backends, not failures 
 | mc_unavailable | llamacpp | qwen3-1.7b | 4bit | top-logprobs not served by llama.cpp /v1/completions |
 | mc_unavailable | llamacpp | qwen3-1.7b | 8bit | top-logprobs not served by llama.cpp /v1/completions |
 | mc_unavailable | llamacpp | qwen3-1.7b | 16bit | top-logprobs not served by llama.cpp /v1/completions |
+| perplexity_unavailable | llamacpp | qwen3-0.6b | 4bit | error |
+| mc_unavailable | llamacpp | qwen3-0.6b | 4bit | top-logprobs not served by llama.cpp /v1/completions |
+| perplexity_unavailable | llamacpp | qwen3-0.6b | 8bit | error |
+| mc_unavailable | llamacpp | qwen3-0.6b | 8bit | top-logprobs not served by llama.cpp /v1/completions |
 | perplexity_unavailable | llamacpp | qwen3-0.6b | 4bit | error |
 | mc_unavailable | llamacpp | qwen3-0.6b | 4bit | top-logprobs not served by llama.cpp /v1/completions |
 | perplexity_unavailable | llamacpp | qwen3-0.6b | 8bit | error |

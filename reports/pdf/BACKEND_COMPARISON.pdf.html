@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>BACKEND_COMPARISON</title><style>
+@page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-size: 8pt; color: #888;
+    }
+}
+html { font-size: 10pt; }
+body {
+    font-family: "DejaVu Sans", "Segoe UI", Arial, sans-serif;
+    line-height: 1.45; color: #1a1a1a; margin: 0;
+}
+h1 { font-size: 19pt; margin: 0 0 6pt 0; color: #0f2740; border-bottom: 2px solid #2e86ab;
+     padding-bottom: 5pt; }
+h2 { font-size: 14pt; margin: 18pt 0 7pt 0; color: #2e86ab;
+     border-bottom: 1px solid #d8e4ec; padding-bottom: 3pt;
+     break-after: avoid; }
+h3 { font-size: 11.5pt; margin: 13pt 0 5pt 0; color: #24455f; break-after: avoid; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 16pt; }
+li { margin-bottom: 3pt; }
+hr { border: none; border-top: 1px solid #dde3e8; margin: 14pt 0; }
+
+table {
+    border-collapse: collapse; width: 100%;
+    margin: 8pt 0 12pt 0; font-size: 8.2pt;
+    break-inside: avoid;      /* keep a table's rows together where possible */
+}
+th, td { border: 1px solid #c9d6e0; padding: 3.5pt 5pt; text-align: left;
+         vertical-align: top; }
+th { background: #eef4f8; font-weight: 600; color: #14405c; }
+tr:nth-child(even) td { background: #fafcfd; }
+
+code {
+    font-family: "DejaVu Sans Mono", Consolas, monospace;
+    background: #f3f6f8; padding: 0.5pt 2.5pt; border-radius: 2px;
+    font-size: 8.4pt;
+}
+pre {
+    background: #f3f6f8; border-left: 3px solid #2e86ab;
+    padding: 7pt 9pt; margin: 8pt 0; overflow-wrap: break-word;
+    font-size: 7.8pt; line-height: 1.3; break-inside: avoid;
+}
+pre code { background: none; padding: 0; }
+
+img { max-width: 100%; height: auto; display: block; margin: 9pt auto;
+      break-inside: avoid; page-break-inside: avoid; }
+blockquote {
+    margin: 8pt 0; padding: 5pt 10pt; border-left: 3px solid #d1495b;
+    background: #fdf6f7; color: #5a2b33;
+}
+strong { color: #0f2740; }
+</style></head>
+<body><h1>When each serving backend wins</h1>
+<p>A controlled comparison of <strong>vLLM 0.31</strong> and <strong>llama.cpp (CUDA build)</strong> on one
+GPU, from session <code>20261015T030427Z</code>.</p>
+<p>Raw records: <code>results/raw/runs.jsonl</code> (filter with
+<code>python -m benchmax.cli report --session 20261015T030427Z</code>).
+Reproduce with <code>docs/reproducible-run-plan.md</code>.</p>
+<hr>
+<h2>Setup</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td>NVIDIA GeForce RTX 4060 Laptop, 8188 MiB, driver 610.62, compute 8.9</td>
+</tr>
+<tr>
+<td>Host</td>
+<td>Windows 11, benchmark inside WSL2</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>Qwen3-0.6B (base, not instruct)</td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>GGML_CUDA=ON, <code>CMAKE_CUDA_ARCHITECTURES=89</code></td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>0.31.0, torch cu130</td>
+</tr>
+<tr>
+<td>Replicates</td>
+<td>n = 3, one discarded warmup sweep per cell</td>
+</tr>
+</tbody>
+</table>
+<h2>Results</h2>
+<p>Mean ± standard deviation over 3 replicates.</p>
+<h3>Single request (<code>w1_single_short</code>, 1 request, 128 output tokens)</h3>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Scheme</th>
+<th>TTFT (ms)</th>
+<th>TPOT (ms)</th>
+<th>Output tok/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>llama.cpp</td>
+<td>Q4_K_M</td>
+<td>69.2 ± 99.4</td>
+<td><strong>4.02 ± 0.14</strong></td>
+<td><strong>223.8 ± 31.5</strong></td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>Q8_0</td>
+<td>71.1 ± 104.1</td>
+<td>4.38 ± 0.06</td>
+<td>206.8 ± 29.4</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8 W8A8</td>
+<td><strong>26.6 ± 4.6</strong></td>
+<td>6.60 ± 0.28</td>
+<td>147.9 ± 6.0</td>
+</tr>
+</tbody>
+</table>
+<h3>32-way concurrency (<code>w4_concurrent_32</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Scheme</th>
+<th>TTFT (ms)</th>
+<th>TPOT (ms)</th>
+<th>Output tok/s</th>
+<th>Goodput tok/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>llama.cpp</td>
+<td>Q4_K_M</td>
+<td>3089.4 ± 89.6</td>
+<td>11.40 ± 1.16</td>
+<td>591.2 ± 22.7</td>
+<td>147.8</td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>Q8_0</td>
+<td>2657.2 ± 90.7</td>
+<td><strong>10.29 ± 0.25</strong></td>
+<td>660.8 ± 19.4</td>
+<td>165.2</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8 W8A8</td>
+<td><strong>161.1 ± 108.6</strong></td>
+<td>10.51 ± 0.17</td>
+<td><strong>2704.6 ± 206.9</strong></td>
+<td><strong>2704.6</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>What the numbers say</h2>
+<h3>llama.cpp wins the single-user case</h3>
+<p>At one concurrent request llama.cpp delivers <strong>~25% lower TPOT</strong> and <strong>~51%
+higher single-stream output throughput</strong> than vLLM, and it does so with a much
+tighter relative spread. Its decode loop is simply leaner: one sequence, no
+scheduler, no batch bookkeeping. If you are serving one user and care about how
+fast tokens appear, llama.cpp is ahead.</p>
+<h3>vLLM wins decisively once concurrency exists</h3>
+<p>At 32 concurrent requests vLLM produces <strong>4.1x</strong> the aggregate throughput of
+llama.cpp Q8_0 and cuts median TTFT by <strong>~19x</strong>. This is continuous batching
+doing what it exists for: llama.cpp processes sequences close to serially, so
+throughput barely moves between 1 and 32 requests (223.8 → 660.8 tok/s) while
+per-request TTFT degrades ~37x. vLLM amortises the decode step across the batch,
+so its TTFT at 32-way concurrency is only ~6x its single-request TTFT.</p>
+<p>The practical consequence is visible in <strong>goodput</strong>, which requires both TTFT
+≤ 1 s and TPOT ≤ 100 ms:</p>
+<ul>
+<li>vLLM: <strong>2704.6 tok/s</strong> — every request met both objectives</li>
+<li>llama.cpp Q8_0: 165.2 tok/s — roughly 6% of its own raw throughput qualifies</li>
+</ul>
+<p>llama.cpp can post respectable aggregate throughput while failing a latency
+objective on almost every request. That is the failure mode the metric exists to
+catch, and it is invisible if you only look at tokens/second.</p>
+<h3>The measurement itself is noisy at n=3</h3>
+<p>llama.cpp's single-request TTFT has a standard deviation <strong>larger than its
+mean</strong> (± 99.4 ms on 69.2 ms). The first replicate is consistently the slow one.
+This is the warmup residual the harness already knows about — a single warmup
+sweep is not enough for llama.cpp — and it means the single-request TTFT column
+for llama.cpp should be read as "tens of milliseconds, occasionally 200".</p>
+<p>vLLM's w4 TTFT spread is similarly wide (± 108.6 ms on 161.1 ms). The
+throughput ordering is robust across replicates; the <em>precise</em> latency values
+are not. Treat the ratio between backends as reliable and the absolute TTFT as
+a range.</p>
+<h3>Quantization effect is not separable from the backend</h3>
+<p>llama.cpp Q8_0 beats Q4_K_M on throughput under load (660.8 vs 591.2 tok/s), which
+is the opposite of the usual "smaller is faster" expectation and is a good
+reminder that these are different artifacts with different kernels, not the same
+weights at two bit-widths. <strong>No configuration in this matrix serves identical
+weights on both backends</strong>: llama.cpp consumes GGUF, vLLM consumes safetensors +
+FP8. Part of every delta above belongs to the quantizer and the artifact, not
+the serving engine. This is the single biggest limitation of the comparison and
+it is a property of the current releases, not of the harness.</p>
+<hr>
+<h2>When to pick which</h2>
+<p><strong>Choose llama.cpp when:</strong>
+- concurrency is low, or you run one model per GPU
+- you want the lowest per-token latency for an interactive single stream
+- your hardware is a consumer card and you need the GGUF ecosystem (wide
+  quantisation coverage, CPU offload fallback)
+- operational simplicity matters more than throughput</p>
+<p><strong>Choose vLLM when:</strong>
+- you serve many concurrent users
+- throughput per GPU is the binding constraint
+- you need continuous batching and paged attention to keep latency bounded
+- you want PagedAttention-style memory behaviour under variable load</p>
+<p><strong>The crossover is somewhere between 1 and 32 concurrent requests.</strong> This matrix
+only measures the two ends. The missing middle — <code>w3_concurrent_8</code> at n=3 —
+would locate it, and that is the most useful next measurement.</p>
+<hr>
+<h2>Quality axis</h2>
+<p>Generation-based exact match, dataset v1.0.0 (6 items), no logprob requirement:</p>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Scheme</th>
+<th>Exact match</th>
+<th>Contains match</th>
+<th>Failed</th>
+<th>Token usage coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>llama.cpp</td>
+<td>Q4_K_M</td>
+<td>0.000</td>
+<td>0.167</td>
+<td>0/6</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>Q8_0</td>
+<td>0.167</td>
+<td>0.167</td>
+<td>0/6</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>vLLM</td>
+<td>FP8</td>
+<td>0.167</td>
+<td>0.000</td>
+<td>0/6</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do not read these as a capability ranking.</strong> All three score at or near
+chance on a 6-item set, and the base (non-instruct) model largely fails to
+answer in the requested format. The metric is doing its job as a smoke test —
+it runs on both backends without logprobs, records raw answers, latency, token
+usage and failures — but it is not yet a capability signal. See issue #6.</p>
+<hr>
+<h2>Capability gaps recorded during this run</h2>
+<ul>
+<li><strong>vLLM:</strong> flashinfer sampler disabled automatically
+  (<code>VLLM_USE_FLASHINFER_SAMPLER=0</code>). Its vendored CCCL headers are incompatible
+  with the nvcc in the cu13 wheel, so its JIT sampling build fails and kills
+  engine startup. Without this fallback the vLLM arm does not start at all. The
+  sampler does not affect prompt/eval kernel selection, so the latency and
+  throughput numbers above remain comparable — but this is a degraded
+  configuration and is recorded as such in <code>startup_and_memory.csv</code>.</li>
+</ul>
+<h2>Limitations</h2>
+<ul>
+<li><strong>n = 3</strong>, on one consumer GPU shared with a running desktop. Enough to
+  separate the backends by a large margin; not enough to resolve differences
+  under ~10%, and several absolute latency values have standard deviations
+  larger than their means.</li>
+<li><strong>Not weight-controlled</strong> (see above).</li>
+<li><strong>No cloud arm.</strong> No provider credentials were available.</li>
+<li><strong>Perplexity and MC accuracy are not comparable across backends</strong>: vLLM
+  scores via server echo logprobs (~18k tokens), llama.cpp offline from the
+  identical GGUF (2048-token windows).</li>
+<li><strong>Two workloads only.</strong> <code>w2_single_prefill</code> and <code>w3_concurrent_8</code> were not in
+  this session.</li>
+</ul></body></html>

@@ -32,3 +32,7 @@ perplexity_unavailable,llamacpp,qwen3-0.6b,4bit,error
 mc_unavailable,llamacpp,qwen3-0.6b,4bit,top-logprobs not served by llama.cpp /v1/completions
 perplexity_unavailable,llamacpp,qwen3-0.6b,8bit,error
 mc_unavailable,llamacpp,qwen3-0.6b,8bit,top-logprobs not served by llama.cpp /v1/completions
+perplexity_unavailable,llamacpp,qwen3-0.6b,4bit,error
+mc_unavailable,llamacpp,qwen3-0.6b,4bit,top-logprobs not served by llama.cpp /v1/completions
+perplexity_unavailable,llamacpp,qwen3-0.6b,8bit,error
+mc_unavailable,llamacpp,qwen3-0.6b,8bit,top-logprobs not served by llama.cpp /v1/completions
