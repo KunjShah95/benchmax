@@ -253,6 +253,7 @@ class OpenAICompatClient:
         self, prompt: str, max_tokens: int, run_id: str, workload: str,
         temperature: float = 0.0, seed: int | None = 1234,
         echo: bool = True, n_logprobs: int = 0,
+        stop: list[str] | None = None,
     ) -> dict[str, Any]:
         """Non-streaming request that can also ask for token logprobs.
 
@@ -273,6 +274,8 @@ class OpenAICompatClient:
         }
         if echo:
             payload["echo"] = True
+        if stop:
+            payload["stop"] = list(stop)
         payload["logprobs"] = n_logprobs
         if seed is not None:
             payload["seed"] = seed
@@ -288,6 +291,56 @@ class OpenAICompatClient:
             "wall_s": time.perf_counter() - t0,
             "prompt_chars": len(prompt),
         }
+
+    def complete_once(
+        self, prompt: str, max_tokens: int, run_id: str, workload: str,
+        temperature: float = 0.0, seed: int | None = None,
+        timeout: float | None = None,
+        stop: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Non-streaming completion with NO logprob parameters.
+
+        This is the path used by generation-based quality evaluation, which must
+        remain usable on backends that reject logprob arguments entirely. Unlike
+        ``complete_scored`` it never sends ``logprobs`` or ``echo``.
+
+        `stop` is passed through verbatim so a caller can bound generation. Base
+        (non-instruct) completion models frequently ignore an "answer with only
+        X" instruction and continue generating indefinitely; without a stop
+        string the answer is buried in filler and exact-match scoring reports a
+        false negative.
+        """
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "prompt": prompt,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": False,
+        }
+        if stop:
+            payload["stop"] = list(stop)
+        if seed is not None:
+            payload["seed"] = seed
+        payload.update(self.extra_body)
+
+        t0 = time.perf_counter()
+        r = self.session.post(
+            f"{self.base_url}/v1/completions",
+            json=payload,
+            timeout=timeout or self.timeout,
+        )
+        r.raise_for_status()
+        obj = r.json()
+        return {
+            "raw": obj,
+            "wall_s": time.perf_counter() - t0,
+            "prompt_chars": len(prompt),
+        }
+
+    # Aliases for callers/tests that use different names for the same path.
+    complete_generate = complete_once
+    complete_nonstreaming = complete_once
+    generate = complete_once
 
 
 # --------------------------------------------------------------------------

@@ -446,6 +446,37 @@ def write_all(results_dir: str, reports_dir: str) -> dict[str, Any]:
         starts.to_csv(os.path.join(summary_dir, "startup_and_memory.csv"), index=False)
         outputs["startup"] = starts
 
+    gen_quality_records = [r for r in other
+                          if r.get("kind") == "generation_quality_run"]
+    if gen_quality_records:
+        gen_rows = []
+        for r in gen_quality_records:
+            c = r.get("cell") or {}
+            q = (r.get("quality") or {})
+            gen_rows.append({
+                "backend": c.get("backend"),
+                "model_key": c.get("model_key"),
+                "model": c.get("model_label"),
+                "quant_level": c.get("quant_level"),
+                "dataset_version": q.get("dataset_version"),
+                "dataset_hash": q.get("dataset_hash"),
+                "n_items": q.get("n_items"),
+                "n_ok": q.get("n_ok"),
+                "n_failed": q.get("n_failed"),
+                "n_exact_match": q.get("n_exact_match"),
+                "exact_match_accuracy": q.get("exact_match_accuracy"),
+                "total_prompt_tokens": q.get("total_prompt_tokens"),
+                "total_completion_tokens": q.get("total_completion_tokens"),
+                "usage_coverage": q.get("usage_coverage"),
+                "n_contains_match": q.get("n_contains_match"),
+                "contains_match_accuracy": q.get("contains_match_accuracy"),
+            })
+        if gen_rows:
+            gen_df = pd.DataFrame(gen_rows)
+            gen_df.to_csv(os.path.join(summary_dir, "generation_quality_runs.csv"),
+                          index=False)
+            outputs["generation_quality"] = gen_df
+
     # environment / versions passthrough
     for key, fname in [("environment", "environment.json"),
                        ("versions", "versions.json")]:

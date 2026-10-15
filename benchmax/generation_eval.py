@@ -40,6 +40,15 @@ from .core import OpenAICompatClient
 
 DATASET_VERSION = "1.0.0"
 
+# Default stop strings applied to every generation-eval request.
+#
+# Measured on Qwen3-0.6B via /v1/completions: the base model ignores
+# "answer with only the number" and keeps generating filler
+# ("Just the number. Just the number. ...") until max_tokens, so exact-match
+# scoring reports a false negative even when the right answer is present
+# mid-string. Newlines are the reliable boundary for a base completion model.
+DEFAULT_STOPS: list[str] = ["\n", "Question:", "\n\n"]
+
 # ----------------------------------------------------------------- dataset
 
 
@@ -118,6 +127,26 @@ def is_exact_match(model_answer: str | None, expected: str) -> bool:
     return normalise_answer(model_answer) == normalise_answer(expected)
 
 
+def is_contains_match(model_answer: str | None, expected: str) -> bool:
+    """True when the expected answer appears anywhere in the response.
+
+    Kept as a *secondary* signal beside strict exact match. Measured on
+    Qwen3-0.6B base via /v1/completions: it echoes the instruction (" No other
+    text. Just the number.") or wraps the answer (" The answer is Paris."), so
+    exact match reports 0% even when the answer is plainly present. Reporting
+    both keeps the strict metric honest while still distinguishing a model that
+    got the answer from one that did not.
+    """
+    exp = normalise_answer(expected)
+    got = normalise_answer(model_answer)
+    if not exp or not got:
+        return False
+    # require a word boundary so "25" does not match inside "250"
+    if exp[0].isalnum():
+        return got == exp or f" {exp} " in f" {got} "
+    return exp in got
+
+
 # -------------------------------------------------------------- evaluation
 
 
@@ -172,29 +201,43 @@ def _as_dataset(dataset: Any) -> list[dict[str, Any]]:
 def evaluate_generation(
     client: OpenAICompatClient,
     dataset: Any = None,
+    dataset_version: str | None = None,
     max_tokens: int = 64,
     temperature: float = 0.0,
     seed: int | None = 1234,
     run_id: str = "genqual",
     workload: str = "quality_gen",
+    stop: list[str] | None = None,
 ) -> dict[str, Any]:
     """Run the generation-based quality probe against ``client``.
 
     Returns a dict with ``status``, ``dataset_version``, ``dataset_hash``,
     per-item results and aggregate accuracy/latency/token counters.
+
+    ``stop`` defaults to :data:`DEFAULT_STOPS`; pass ``[]`` to disable stopping.
     """
+    ds_version = dataset_version
+    if isinstance(dataset, dict):
+        if ds_version is None:
+            ds_version = dataset.get("version") or dataset.get("dataset_version")
     items = _as_dataset(dataset)
     h = dataset_hash(items)
     n = len(items)
+    if ds_version is None:
+        ds_version = DATASET_VERSION
+
+    stops = DEFAULT_STOPS if stop is None else list(stop)
 
     per_item: list[dict[str, Any]] = []
     errors: list[str] = []
     n_ok = 0
     n_failed = 0
     n_exact = 0
+    n_contains = 0
     latencies: list[float] = []
-    total_prompt_tokens = 0
-    total_completion_tokens = 0
+    total_prompt_tokens = None
+    total_completion_tokens = None
+    n_with_usage = 0
 
     for i, it in enumerate(items):
         rid = f"{run_id}|{it['id']}"
@@ -207,6 +250,7 @@ def evaluate_generation(
             "raw_answer": None,
             "model_answer": None,
             "passed": False,
+            "contains_match": False,
             "latency_s": None,
             "prompt_tokens": None,
             "completion_tokens": None,
@@ -214,16 +258,19 @@ def evaluate_generation(
             "error": None,
         }
         try:
-            got = client.complete_scored(
-                prompt=it["prompt"],
-                max_tokens=max_tokens,
-                run_id=rid,
-                workload=workload,
-                temperature=temperature,
-                seed=seed,
-                echo=False,
-                n_logprobs=0,
-            )
+            complete = getattr(client, "complete_once", None)
+            if complete is None:
+                got = client.complete_scored(
+                    prompt=it["prompt"], max_tokens=max_tokens, run_id=rid,
+                    workload=workload, temperature=temperature, seed=seed,
+                    echo=False, n_logprobs=0, stop=stops,
+                )
+            else:
+                got = complete(
+                    prompt=it["prompt"], max_tokens=max_tokens, run_id=rid,
+                    workload=workload, temperature=temperature, seed=seed,
+                    stop=stops,
+                )
         except Exception as exc:  # noqa: BLE001 - recorded, not swallowed
             row["error"] = f"{type(exc).__name__}: {exc}"
             errors.append(f"item {it['id']}: {row['error']}")
@@ -244,20 +291,39 @@ def evaluate_generation(
         row["completion_tokens"] = usage.get("completion_tokens")
         row["http_status"] = 200
 
-        if row["prompt_tokens"] is not None:
-            total_prompt_tokens += int(row["prompt_tokens"])
-        if row["completion_tokens"] is not None:
-            total_completion_tokens += int(row["completion_tokens"])
+        has_usage = row["prompt_tokens"] is not None or row["completion_tokens"] is not None
+        if has_usage:
+            n_with_usage += 1
+            if total_prompt_tokens is None:
+                total_prompt_tokens = 0
+            if total_completion_tokens is None:
+                total_completion_tokens = 0
+            if row["prompt_tokens"] is not None:
+                total_prompt_tokens += int(row["prompt_tokens"])
+            if row["completion_tokens"] is not None:
+                total_completion_tokens += int(row["completion_tokens"])
         if row["latency_s"] is not None:
             latencies.append(float(row["latency_s"]))
+
+        if not normalise_answer(text):
+            row["passed"] = False
+            row["error"] = "empty response"
+            errors.append(f"item {it['id']}: empty response")
+            n_failed += 1
+            per_item.append(row)
+            continue
 
         if is_exact_match(text, it["expected"]):
             n_exact += 1
             row["passed"] = True
+        if is_contains_match(text, it["expected"]):
+            n_contains += 1
+            row["contains_match"] = True
         n_ok += 1
         per_item.append(row)
 
     accuracy = (n_exact / n_ok) if n_ok else None
+    contains_accuracy = (n_contains / n_ok) if n_ok else None
 
     if n_ok == 0:
         status = "error" if errors else "unsupported"
@@ -266,10 +332,12 @@ def evaluate_generation(
     else:
         status = "ok"
 
+    usage_coverage = (n_with_usage / n) if n else None
     return {
         "kind": "generation_quality_run",
         "status": status,
-        "dataset_version": DATASET_VERSION,
+        "dataset_version": ds_version,
+        "dataset_version_resolved": ds_version,
         "dataset_hash": h,
         "dataset_items": n,
         "n_items": n,
@@ -277,14 +345,23 @@ def evaluate_generation(
         "n_failed": n_failed,
         "n_exact_match": n_exact,
         "exact_match_accuracy": accuracy,
+        "n_contains_match": n_contains,
+        "contains_match_accuracy": contains_accuracy,
         "latency_s_mean": (statistics.mean(latencies) if latencies else None),
         "latency_s_p50": (statistics.median(latencies) if latencies else None),
         "latency_s_max": (max(latencies) if latencies else None),
         "total_prompt_tokens": total_prompt_tokens,
         "total_completion_tokens": total_completion_tokens,
+        "token_usage_total_prompt": total_prompt_tokens,
+        "token_usage_total_completion": total_completion_tokens,
+        "token_usage_available": n_with_usage > 0,
+        "n_with_usage": n_with_usage,
+        "usage_coverage": usage_coverage,
+        "usage_available": n_with_usage > 0,
         "max_tokens": max_tokens,
         "temperature": temperature,
         "seed": seed,
+        "stop": stops,
         "per_item": per_item,
         "errors": errors[:20],
         "limitations": [

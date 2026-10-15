@@ -29,6 +29,7 @@ from dataclasses import asdict
 from typing import Any
 
 from . import config as C
+from . import generation_eval as GE
 from . import quality as Q
 from .backends import BACKENDS, ResourceSampler, tail
 from .core import (OpenAICompatClient, calibrate_overhead, records_to_jsonable,
@@ -127,7 +128,9 @@ class BenchmarkRunner:
                  backends: list[str], workloads: list[str] | None = None,
                  repeats: int = 3, do_quality: bool = True,
                  device: str = "cuda", warmup_reps: int = 1,
-                 n_ppl_chunks: int = 12, ppl_ctx: int = 2048):
+                 n_ppl_chunks: int = 12, ppl_ctx: int = 2048,
+                 gen_max_tokens: int = 64,
+                 gen_stops: list[str] | None = None):
         self.env_root = env_root
         self.results_dir = results_dir
         self.models_dir = models_dir
@@ -139,6 +142,9 @@ class BenchmarkRunner:
         self.warmup_reps = warmup_reps
         self.n_ppl_chunks = n_ppl_chunks
         self.ppl_ctx = ppl_ctx
+        self.gen_max_tokens = gen_max_tokens
+        # None means "use the module defaults"; [] disables stopping entirely.
+        self.gen_stops = gen_stops
 
         os.makedirs(results_dir, exist_ok=True)
         os.makedirs(os.path.join(results_dir, "raw"), exist_ok=True)
@@ -272,6 +278,26 @@ class BenchmarkRunner:
             "quality": res,
         })
 
+    def _generation_quality(self, client: OpenAICompatClient, cell: C.Cell) -> None:
+        dataset = None
+        try:
+            dataset = GE.load_generation_dataset()
+        except Exception:  # noqa: BLE001
+            dataset = None
+        result = GE.evaluate_generation(
+            client, dataset=dataset, max_tokens=self.gen_max_tokens,
+            stop=self.gen_stops,
+            run_id=f"{cell.backend}|{cell.model_key}|{cell.quant_level}|genqual")
+        self._append_raw({
+            "kind": "generation_quality_run",
+            "run_id": (f"{cell.backend}|{cell.model_key}|{cell.quant_level}|"
+                       "gen_quality"),
+            "cell": cell.to_dict(),
+            "quality": result,
+            "dataset_version": result.get("dataset_version"),
+            "dataset_hash": result.get("dataset_hash"),
+        })
+
     # -- one cell ----------------------------------------------------------
     def run_cell(self, cell: C.Cell, corpus: str, corpus_source: str) -> dict[str, Any]:
         if cell.status == "skipped":
@@ -367,6 +393,15 @@ class BenchmarkRunner:
             except Exception as exc:  # noqa: BLE001
                 self._append_raw({
                     "kind": "quality_error",
+                    "cell": cell.to_dict(),
+                    "error": f"{type(exc).__name__}: {exc}",
+                })
+            try:
+                self._generation_quality(client, cell)
+                print("  -> generation quality done", flush=True)
+            except Exception as exc:  # noqa: BLE001
+                self._append_raw({
+                    "kind": "generation_quality_error",
                     "cell": cell.to_dict(),
                     "error": f"{type(exc).__name__}: {exc}",
                 })
