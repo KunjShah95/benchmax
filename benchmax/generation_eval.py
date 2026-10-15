@@ -32,6 +32,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import statistics
 from typing import Any, Iterable
 
@@ -125,6 +126,45 @@ def normalise_answer(text: str | None) -> str:
 
 def is_exact_match(model_answer: str | None, expected: str) -> bool:
     return normalise_answer(model_answer) == normalise_answer(expected)
+
+
+# Phrases a base model emits *before* restating the instruction, measured on
+# Qwen3-0.6B via /v1/completions.
+_ANSWER_PREFIX_RE = re.compile(
+    r"^(?:the\s+answer\s+is|answer\s*:|answer\s+is)\s*", re.IGNORECASE)
+
+
+def extract_answer(text: str | None) -> str:
+    """Pull the answer span out of a model's response.
+
+    Measured behaviour of base (non-instruct) completion models on this
+    dataset: they emit a preamble that restates the instruction
+    ("No other text. Just the number.") or wrap the result in prose
+    ("The answer is Paris."). Scoring the whole string therefore reports 0%
+    even when the answer is plainly present.
+
+    Extraction is deliberately narrow -- it strips a leading answer label and
+    trailing punctuation, and takes the last non-empty line. It never tries to
+    be clever, because a lenient extractor would turn a failing model into a
+    passing one. The untrimmed `raw_answer` is still recorded for audit.
+    """
+    if text is None:
+        return ""
+    s = str(text).strip()
+    if not s:
+        return ""
+    # last non-empty line: base models put the answer on the final line
+    lines = [ln.strip() for ln in s.splitlines() if ln.strip()]
+    if lines:
+        s = lines[-1]
+    prev = None
+    while prev != s:
+        prev = s
+        s = _ANSWER_PREFIX_RE.sub("", s).strip()
+    s = s.strip().strip("*").strip()
+    # drop a single trailing sentence period, but keep decimals like "3.5"
+    s = re.sub(r"[.\s]+$", "", s)
+    return s
 
 
 def is_contains_match(model_answer: str | None, expected: str) -> bool:
@@ -249,6 +289,7 @@ def evaluate_generation(
             "expected": it["expected"],
             "raw_answer": None,
             "model_answer": None,
+            "extracted_answer": None,
             "passed": False,
             "contains_match": False,
             "latency_s": None,
@@ -286,6 +327,7 @@ def evaluate_generation(
             text = choices[0].get("text")
         row["raw_answer"] = text
         row["model_answer"] = normalise_answer(text)
+        row["extracted_answer"] = extract_answer(text)
         usage = raw.get("usage") or {}
         row["prompt_tokens"] = usage.get("prompt_tokens")
         row["completion_tokens"] = usage.get("completion_tokens")
@@ -313,7 +355,7 @@ def evaluate_generation(
             per_item.append(row)
             continue
 
-        if is_exact_match(text, it["expected"]):
+        if is_exact_match(row["extracted_answer"], it["expected"]):
             n_exact += 1
             row["passed"] = True
         if is_contains_match(text, it["expected"]):
@@ -345,6 +387,10 @@ def evaluate_generation(
         "n_failed": n_failed,
         "n_exact_match": n_exact,
         "exact_match_accuracy": accuracy,
+        "exact_match_on": "extracted_answer",
+        "n_exact_match_raw": sum(
+            1 for r in per_item
+            if is_exact_match(r.get("raw_answer"), r.get("expected"))),
         "n_contains_match": n_contains,
         "contains_match_accuracy": contains_accuracy,
         "latency_s_mean": (statistics.mean(latencies) if latencies else None),

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>README</title><style>
+@page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-size: 8pt; color: #888;
+    }
+}
+html { font-size: 10pt; }
+body {
+    font-family: "DejaVu Sans", "Segoe UI", Arial, sans-serif;
+    line-height: 1.45; color: #1a1a1a; margin: 0;
+}
+h1 { font-size: 19pt; margin: 0 0 6pt 0; color: #0f2740; border-bottom: 2px solid #2e86ab;
+     padding-bottom: 5pt; }
+h2 { font-size: 14pt; margin: 18pt 0 7pt 0; color: #2e86ab;
+     border-bottom: 1px solid #d8e4ec; padding-bottom: 3pt;
+     break-after: avoid; }
+h3 { font-size: 11.5pt; margin: 13pt 0 5pt 0; color: #24455f; break-after: avoid; }
+p { margin: 0 0 7pt 0; text-align: justify; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 16pt; }
+li { margin-bottom: 3pt; }
+hr { border: none; border-top: 1px solid #dde3e8; margin: 14pt 0; }
+
+table {
+    border-collapse: collapse; width: 100%;
+    margin: 8pt 0 12pt 0; font-size: 8.2pt;
+    break-inside: avoid;      /* keep a table's rows together where possible */
+}
+th, td { border: 1px solid #c9d6e0; padding: 3.5pt 5pt; text-align: left;
+         vertical-align: top; }
+th { background: #eef4f8; font-weight: 600; color: #14405c; }
+tr:nth-child(even) td { background: #fafcfd; }
+
+code {
+    font-family: "DejaVu Sans Mono", Consolas, monospace;
+    background: #f3f6f8; padding: 0.5pt 2.5pt; border-radius: 2px;
+    font-size: 8.4pt;
+}
+pre {
+    background: #f3f6f8; border-left: 3px solid #2e86ab;
+    padding: 7pt 9pt; margin: 8pt 0; overflow-wrap: break-word;
+    font-size: 7.8pt; line-height: 1.3; break-inside: avoid;
+}
+pre code { background: none; padding: 0; }
+
+img { max-width: 100%; height: auto; display: block; margin: 9pt auto;
+      break-inside: avoid; page-break-inside: avoid; }
+blockquote {
+    margin: 8pt 0; padding: 5pt 10pt; border-left: 3px solid #d1495b;
+    background: #fdf6f7; color: #5a2b33;
+}
+strong { color: #0f2740; }
+</style></head>
+<body><h1>benchmax — controlled benchmark of LLM serving backends</h1>
+<p>Compares <strong>vLLM</strong>, <strong>llama.cpp</strong>, and other OpenAI-compatible serving backends
+under identical, deterministic workloads, measuring time-to-first-token,
+inter-token latency, throughput, memory, and output quality under quantization.</p>
+<p>The goal is <strong>not</strong> to crown a winner. These backends optimize different
+objectives under different constraints, and on a single 8 GiB consumer GPU the
+constraints dominate the architecture. The deliverable is a set of reproducible
+measurements plus an explicit account of what each number does and does not
+license you to conclude.</p>
+<hr>
+<h2>Quick start</h2>
+<p>Everything runs inside WSL2 (vLLM has no native Windows support, and running
+both backends in the same environment is what makes the comparison fair).</p>
+<pre><code class="language-bash"># one-time setup (see scripts/ for the individual stages)
+bash scripts/stage1_bootstrap.sh        # venv + cmake/ninja
+bash scripts/stage2b3_cuda_from_redist.sh # rootless CUDA toolkit for the build
+bash scripts/stage2a_install_vllm.sh    # vLLM
+bash scripts/stage2c_build_llamacpp.sh  # llama.cpp with CUDA
+bash scripts/stage3_bench_venv.sh       # harness venv
+
+# then
+python -m benchmax.cli list          # planned matrix
+python -m benchmax.cli preflight     # which model files exist
+python -m benchmax.cli download      # fetch artifacts
+python -m benchmax.cli run           # execute
+python -m benchmax.cli report        # tables + figures
+</code></pre>
+<p><code>python -m benchmax.cli selftest</code> validates the measurement core against a mock
+endpoint with known injected latencies — run it first if you change anything in
+<code>benchmax/core.py</code>.</p>
+<hr>
+<h2>Why these choices</h2>
+<p><strong>The <code>/v1/completions</code> endpoint, not chat.</strong> Chat endpoints apply each model's
+chat template. Qwen3-style hybrid-thinking models inject a reasoning block whose
+length varies per model and per prompt, which would silently change token counts
+across the matrix. Completions keeps the workload byte-identical everywhere.</p>
+<p><strong>Backends as separate server processes.</strong> An in-process Python API would hide
+exactly the differences under test — scheduling, continuous batching, KV cache
+management, kernel dispatch.</p>
+<p><strong>Client-side timing on a monotonic clock, at chunk arrival.</strong> This is the
+external view of latency, including HTTP and event-loop overhead. At
+sub-100 ms deltas that overhead is not negligible, so <code>selftest</code> measures it
+rather than assuming it away.</p>
+<p><strong>Aggregate throughput against group wall time, not the sum of per-request
+times.</strong> Summing would credit a concurrent run with more throughput than the
+server actually delivered.</p>
+<p><strong>Warmup pass discarded per cell.</strong> The first CUDA-graph capture, autotuning
+sweep and allocator warmup a server performs would otherwise land entirely on
+the first measured request.</p>
+<p><strong>Quantization is not a format identity.</strong> llama.cpp consumes GGUF
+(<code>Q4_K_M</code>/<code>Q8_0</code>/<code>F16</code>); vLLM's fast GPU kernels target AWQ and BF16. "4-bit"
+means <em>the backend's preferred 4-bit scheme</em>. These are different algorithms
+with different error characteristics, so part of any quality delta between them
+belongs to the quantizer rather than the backend. Every cell records its exact
+scheme string.</p>
+<p><strong>Unquantized is the reference.</strong> Perplexity and multiple-choice accuracy are
+reported relative to each model's own 16-bit run, not to some external baseline.</p>
+<p><strong>Unavailable cells are recorded, not dropped.</strong> No curated INT8 checkpoint
+exists for several models and no AWQ checkpoint exists for Qwen3-0.6B/1.7B, so
+those cells are written as <code>skipped</code> with a reason. That gap is itself a finding
+about the quantization surface each project supports.</p>
+<p><strong>Backend variants, not just backends.</strong> <code>llamacpp</code>, <code>vllm</code>, <code>vllm_gguf</code> and
+<code>ollama</code> are separate adapters. <code>vllm_gguf</code> was designed to hold weights fixed
+while varying only the backend; it is present but <strong>skipped</strong>, because vLLM 0.31
+removed GGUF support. That negative result is more informative than the
+comparison would have been.</p>
+<p><strong>A lockfile prevents concurrent runs.</strong> Two benchmark servers driving one GPU
+silently contaminate each other's latency numbers, and nothing in the output
+makes that visible. The runner refuses to start while another holds the lock.</p>
+<p><strong>Client connection pool is sized above the largest workload.</strong> <code>requests</code>
+defaults to 10 connections; at 32 concurrent requests that put client-side
+queuing <em>inside</em> the TTFT measurement, reporting idle-server latency as seconds
+long. Verified against a mock endpoint with known injected latency.</p>
+<hr>
+<h2>What is measured</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TTFT</td>
+<td>arrival of first token minus request send. Includes queueing, prefill and first decode step.</td>
+</tr>
+<tr>
+<td>ITL</td>
+<td>interval between consecutive token arrivals, reported p50/p95/p99.</td>
+</tr>
+<tr>
+<td>TPOT</td>
+<td>mean interval between tokens — the latency a streaming user feels per token.</td>
+</tr>
+<tr>
+<td>Output throughput</td>
+<td>total completion tokens ÷ group wall time.</td>
+</tr>
+<tr>
+<td>Prefill throughput</td>
+<td>total prompt tokens ÷ group wall time.</td>
+</tr>
+<tr>
+<td>Goodput</td>
+<td>tokens/s from requests meeting <strong>both</strong> TTFT ≤ 1000 ms and TPOT ≤ 100 ms. A backend can post excellent mean throughput while failing this.</td>
+</tr>
+<tr>
+<td>Peak VRAM / host RSS</td>
+<td>sampled at 2 Hz throughout each run; peaks reported.</td>
+</tr>
+<tr>
+<td>Perplexity</td>
+<td>from the server's own prompt logprobs over a fixed wikitext-2 slice, so it scores the weights actually resident in the server.</td>
+</tr>
+<tr>
+<td>MC accuracy</td>
+<td>60 fixed items, scored by top-logprob at one forward pass, with a Wilson interval.</td>
+</tr>
+</tbody>
+</table>
+<h3>Workloads</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Shape</th>
+<th>Isolates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>w1_single_short</code></td>
+<td>1 req, short prompt, 128 out</td>
+<td>interactive latency floor</td>
+</tr>
+<tr>
+<td><code>w2_single_prefill</code></td>
+<td>1 req, ~2k-token prompt, 64 out</td>
+<td>prefill / TTFT under load</td>
+</tr>
+<tr>
+<td><code>w3_concurrent_8</code></td>
+<td>8 concurrent</td>
+<td>light continuous batching</td>
+</tr>
+<tr>
+<td><code>w4_concurrent_32</code></td>
+<td>32 concurrent</td>
+<td>aggregate throughput ceiling</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Layout</h2>
+<pre><code>benchmax/
+  core.py        measurement: TTFT, ITL, TPOT, throughput, goodput
+  backends.py    server lifecycle + GPU/host memory sampling
+  workloads.py   deterministic prompt generation
+  quality.py     perplexity + multiple-choice probe
+  config.py      experiment matrix and quantization-scheme mapping
+  models.py      artifact resolution and download
+  runner.py      orchestrator
+  report.py      tables + figures from raw records
+  cloud.py       hosted-endpoint adapter
+  mock_cloud.py  local OpenAI-compatible mock (test fixture)
+scripts/         setup and orchestration shell scripts
+results/raw/     append-only runs.jsonl + environment + versions
+reports/         generated tables, figures
+</code></pre>
+<p><strong><code>results/raw/runs.jsonl</code> is the source of truth.</strong> Every aggregate is
+re-derived from it by <code>report.py</code>. If a number in a report looks wrong, fix the
+aggregation and re-run <code>report</code> — no inference needs to be repeated.</p>
+<h2>PDFs</h2>
+<p><code>reports/pdf/</code> holds print-ready, self-contained PDFs — figures embedded, so
+they render on any machine without the repository alongside:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Pages</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REPORT.pdf</code></td>
+<td>11</td>
+<td>the full report with figures</td>
+</tr>
+<tr>
+<td><code>DATA_APPENDIX.pdf</code></td>
+<td>22</td>
+<td>every table: performance by workload/backend/quantization, frontier, quantization cost, lifecycle, memory, quality, capability gaps, matrix status, environment</td>
+</tr>
+<tr>
+<td><code>README.pdf</code></td>
+<td>4</td>
+<td>this methodology document</td>
+</tr>
+</tbody>
+</table>
+<p>Regenerate with <code>bash scripts/stage6_pdf.sh</code> (runs <code>report</code> first if you have
+not already). <code>scripts/md_to_pdf.py</code> renders Markdown to PDF using <code>markdown</code>
+plus WeasyPrint — no pandoc, LaTeX or LibreOffice, none of which are installed
+here. The intermediate HTML is kept at <code>reports/pdf/html/</code>.</p>
+<hr>
+<h2>Known limitations</h2>
+<ul>
+<li><strong>The comparison is not weight-controlled.</strong> vLLM 0.31 has <strong>no GGUF
+  support</strong> (no <code>gguf</code> method in <code>QUANTIZATION_METHODS</code>, no
+  <code>quantization.gguf</code> module, no <code>GGUFConfig</code>). llama.cpp consumes GGUF; vLLM
+  consumes safetensors + AWQ/FP8/GPTQ. The quantization surfaces are disjoint, so
+  no configuration serves identical weights on both — every backend delta also
+  confounds the quantizer and the artifact. This is the single biggest
+  limitation and it is a property of the current releases, not the harness.</li>
+<li><strong>Single 8 GiB consumer GPU, shared with a running desktop.</strong> Absolute numbers
+  are not representative of datacenter hardware; the desktop's own GPU use is a
+  real noise source.</li>
+<li><strong>WSL2 caps guest RAM at 11 GiB</strong>, which would bound any CPU-offload
+  configuration.</li>
+<li><strong>n = 3 replicates.</strong> Enough for the 4–60× effects reported; not enough to
+  resolve differences under ~10%.</li>
+<li><strong>Perplexity is not comparable across the two backends</strong> — llama.cpp's tool
+  scores 2048-token windows, vLLM's echo path ~18k tokens. Within-backend,
+  across-quantization comparisons are valid; cross-tool ones are not.</li>
+<li><strong>llama.cpp cannot serve prompt logprobs.</strong> <code>llama-server</code> rejects <code>echo=true</code>
+  and returns empty <code>logprobs</code>, so its perplexity was measured offline from the
+  identical GGUF file and its multiple-choice probe was skipped.</li>
+<li><strong>The 16-bit reference is a ceiling reference, not a deployment option</strong> for
+  the 3B/4B models; those cells are excluded by the VRAM budget rather than
+  allowed to OOM.</li>
+<li><strong>The MC probe is not informative</strong> (accuracies at or below the 0.25 chance
+  rate) and should not be used as a capability signal.</li>
+<li><strong>One contaminated cell was found and re-measured.</strong> <code>llamacpp/Qwen3-1.7B</code>
+  initially reported 8× slower per-token than the <em>smaller</em> 0.6B model, which is
+  not physically possible; concurrent GPU load from an orphaned server was the
+  cause. Re-measuring on a quiet machine changed TPOT from 35–76 ms to 6.7–15.5
+  ms. The 2 Hz GPU-utilisation sampler flagged it by reporting 91–93%
+  utilisation at batch size 1. Superseded records are archived, not deleted.
+  <strong>Treat any physically implausible latency figure with suspicion.</strong></li>
+<li><strong>No cloud measurements.</strong> No provider credentials were available. The cloud
+  adapter is implemented and verified against a local mock; add a key and run
+  <code>python -m benchmax.cli cloud run</code> to populate that arm.</li>
+</ul>
+<p>See <code>reports/REPORT.md</code> for results, the full trade-off analysis, and the
+backend-selection guide.</p></body></html>

@@ -1,6 +1,6 @@
 {
   "llamacpp": {
-    "commit": "51d1a8c997bd2629ef211a30208058ea87a30982",
+    "commit": "a0e6dc7384edb8f5d927155e1d26c10b4a310e6d",
     "build": "GGML_CUDA=ON, CMAKE_CUDA_ARCHITECTURES=89"
   },
   "vllm": "0.31.0"

@@ -175,7 +175,15 @@ class Backend:
     def __init__(self, env_root: str, log_dir: str):
         self.env_root = env_root
         self.log_dir = log_dir
+        # Configurations the backend had to degrade to in order to start at
+        # all. Reported alongside the results so a measurement taken under a
+        # forced fallback is never mistaken for a default configuration.
+        self._capability_gaps: list[str] = []
         os.makedirs(log_dir, exist_ok=True)
+
+    @property
+    def capability_gaps(self) -> list[str]:
+        return list(self._capability_gaps)
 
     def start(self, model_path: str, quant_label: str, **kw) -> ServerHandle:
         raise NotImplementedError
@@ -431,6 +439,27 @@ class VLLMBackend(Backend):
                 [d for d in lib_dirs if os.path.isdir(d)]
                 + [env.get("LIBRARY_PATH", "")]
             ).strip(os.pathsep)
+
+            # FlashInfer JIT-compiles its sampling kernel at engine start. On
+            # this stack (vLLM 0.31 + flashinfer 0.7.0.post1 + the cu13 wheel)
+            # that build fails with
+            #   "CUDA compiler and CUDA toolkit headers are incompatible"
+            # because flashinfer's vendored CCCL headers disagree with the
+            # nvcc the cu13 wheel provides. The engine then dies with a bare
+            # "Engine core initialization failed" and no usable cause, which
+            # looks like a vLLM bug rather than a packaging mismatch.
+            #
+            # The sampler is a small part of the measurement surface: it does
+            # not change prompt/eval kernel selection, so disabling it keeps
+            # TTFT/throughput comparable while making the cell startable.
+            # It is recorded as a capability gap rather than silently applied.
+            if env.get("VLLM_USE_FLASHINFER_SAMPLER") is None:
+                env["VLLM_USE_FLASHINFER_SAMPLER"] = "0"
+                self._capability_gaps.append(
+                    "flashinfer sampler disabled (VLLM_USE_FLASHINFER_SAMPLER=0): "
+                    "vendored CCCL headers are incompatible with the cu13 nvcc, "
+                    "so its JIT sampling build fails and kills engine startup"
+                )
 
         lf = open(log_path, "w", encoding="utf-8")  # noqa: SIM115
         proc = subprocess.Popen(cmd, stdout=lf, stderr=subprocess.STDOUT,

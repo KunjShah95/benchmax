@@ -28,3 +28,7 @@ startup_failure,vllm_gguf,llama32-3b,4bit,
 mc_unavailable,llamacpp,qwen3-1.7b,4bit,top-logprobs not served by llama.cpp /v1/completions
 mc_unavailable,llamacpp,qwen3-1.7b,8bit,top-logprobs not served by llama.cpp /v1/completions
 mc_unavailable,llamacpp,qwen3-1.7b,16bit,top-logprobs not served by llama.cpp /v1/completions
+perplexity_unavailable,llamacpp,qwen3-0.6b,4bit,error
+mc_unavailable,llamacpp,qwen3-0.6b,4bit,top-logprobs not served by llama.cpp /v1/completions
+perplexity_unavailable,llamacpp,qwen3-0.6b,8bit,error
+mc_unavailable,llamacpp,qwen3-0.6b,8bit,top-logprobs not served by llama.cpp /v1/completions

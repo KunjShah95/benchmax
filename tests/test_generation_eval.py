@@ -83,6 +83,23 @@ def test_stop_none_uses_defaults_and_empty_disables():
     assert c2.calls[0] == []
 
 
+def test_extract_answer_handles_measured_base_model_shapes():
+    # shapes captured from real Qwen3-0.6B /v1/completions output
+    assert g.extract_answer(" The answer is Paris.") == "Paris"
+    assert g.extract_answer(" Paris") == "Paris"
+    # last non-empty line wins, then any leading answer label is stripped
+    assert g.extract_answer("chatter\nAnswer: 42") == "42"
+    assert g.extract_answer("  **25**  ") == "25"
+    assert g.extract_answer("line one\n42") == "42"
+    assert g.extract_answer("3.5") == "3.5"
+    assert g.extract_answer("") == ""
+    assert g.extract_answer(None) == ""
+
+
+def test_extraction_does_not_rescue_a_wrong_answer():
+    assert not g.is_exact_match(g.extract_answer(" The answer is 41."), "42")
+
+
 def test_generation_eval_runs_against_mock(mock_url):
     client = OpenAICompatClient(mock_url, model="mock-model")
     result = g.evaluate_generation(client, max_tokens=4)
