@@ -201,3 +201,5 @@ here. The intermediate HTML is kept at `reports/pdf/html/`.
 
 See `reports/REPORT.md` for results, the full trade-off analysis, and the
 backend-selection guide.
+
+---\n\nCase study and write-up: [kunjshah.in/projects/benchmax](https://kunjshah.in/projects/benchmax). Built by [Kunj Shah](https://kunjshah.in).
